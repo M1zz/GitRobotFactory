@@ -36,7 +36,19 @@ class ChapterScene: SKScene {
         stars.position = CGPoint(x: size.width - 60, y: size.height - 25)
         stars.zPosition = 11
         addChild(stars)
-        
+
+        // Developer mode indicator
+        if GameData.shared.devMode {
+            let devLabel = makeLabel("👨‍💻 DEV", size: 11, color: C.yellow, bold: true, mono: true)
+            devLabel.position = CGPoint(x: size.width - 150, y: size.height - 25)
+            devLabel.zPosition = 11
+            devLabel.run(.repeatForever(.sequence([
+                .fadeAlpha(to: 0.5, duration: 0.6),
+                .fadeAlpha(to: 1.0, duration: 0.6)
+            ])))
+            addChild(devLabel)
+        }
+
         let divider = SKShapeNode(rectOf: CGSize(width: size.width, height: 1))
         divider.fillColor = C.border
         divider.strokeColor = .clear

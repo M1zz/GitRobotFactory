@@ -59,9 +59,13 @@ class GameData {
     var completedMissions: Set<Int> = []
     var totalStars = 0
     var collectedRobots: [(emoji: String, name: String)] = []
-    
+    var devMode: Bool = false
+
     func isMissionLocked(_ id: Int) -> Bool {
-        id > 1 && !completedMissions.contains(id - 1) && !completedMissions.contains(id)
+        // Developer mode: unlock all missions
+        if devMode { return false }
+
+        return id > 1 && !completedMissions.contains(id - 1) && !completedMissions.contains(id)
     }
     
     // Parts

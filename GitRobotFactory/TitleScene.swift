@@ -1,6 +1,10 @@
 import SpriteKit
 
 class TitleScene: SKScene {
+    private var devTapCount = 0
+    private var robotIcon: SKNode?
+    private var devModeIndicator: SKLabelNode?
+
     override func didMove(to view: SKView) {
         backgroundColor = C.bg
         setupScene()
@@ -39,15 +43,17 @@ class TitleScene: SKScene {
             addChild(node)
         }
         
-        // Robot icon
+        // Robot icon (tap 5 times for dev mode)
         let robot = SKLabelNode(text: "🤖")
         robot.fontSize = 80
         robot.position = CGPoint(x: mid.x, y: mid.y + 120)
+        robot.name = "devRobot"
         robot.run(.repeatForever(.sequence([
             .moveBy(x: 0, y: -12, duration: 2),
             .moveBy(x: 0, y: 12, duration: 2)
         ])))
         addChild(robot)
+        robotIcon = robot
         
         // Title
         let title = SKLabelNode(text: "Git Robot Factory")
@@ -87,6 +93,31 @@ class TitleScene: SKScene {
             label.position = CGPoint(x: CGFloat(i - 2) * 120 + mid.x, y: 30)
             addChild(label)
         }
+
+        // Developer mode indicator
+        if GameData.shared.devMode {
+            showDevModeIndicator()
+        }
+    }
+
+    private func showDevModeIndicator() {
+        devModeIndicator?.removeFromParent()
+
+        let indicator = SKLabelNode(text: "👨‍💻 DEVELOPER MODE")
+        indicator.fontName = "Menlo-Bold"
+        indicator.fontSize = 12
+        indicator.fontColor = C.yellow
+        indicator.position = CGPoint(x: size.width / 2, y: size.height - 80)
+        indicator.zPosition = 20
+
+        // Pulse animation
+        indicator.run(.repeatForever(.sequence([
+            .fadeAlpha(to: 0.5, duration: 0.6),
+            .fadeAlpha(to: 1.0, duration: 0.6)
+        ])))
+
+        addChild(indicator)
+        devModeIndicator = indicator
     }
     
     private func goToChapters() {
@@ -98,11 +129,84 @@ class TitleScene: SKScene {
     override func mouseUp(with event: NSEvent) {
         let loc = event.location(in: self)
         let nodes = self.nodes(at: loc)
+
+        // Check for dev robot tap
         for node in nodes {
+            if node.name == "devRobot" || node == robotIcon {
+                devTapCount += 1
+
+                // Flash the robot
+                robotIcon?.run(.sequence([
+                    .scale(to: 1.1, duration: 0.1),
+                    .scale(to: 1.0, duration: 0.1)
+                ]))
+
+                if devTapCount >= 5 {
+                    toggleDevMode()
+                    devTapCount = 0
+                }
+                return
+            }
+
             if let btn = node as? ButtonNode ?? node.parent as? ButtonNode {
                 btn.action?()
                 return
             }
+        }
+    }
+
+    private func toggleDevMode() {
+        GameData.shared.devMode.toggle()
+
+        if GameData.shared.devMode {
+            showDevModeIndicator()
+
+            // Success feedback
+            let toast = SKLabelNode(text: "🔓 개발자 모드 활성화!")
+            toast.fontName = "Helvetica-Bold"
+            toast.fontSize = 16
+            toast.fontColor = C.green
+            toast.position = CGPoint(x: size.width / 2, y: size.height / 2 - 50)
+            toast.zPosition = 100
+            addChild(toast)
+
+            toast.run(.sequence([
+                .group([
+                    .moveBy(x: 0, y: 30, duration: 0.3),
+                    .fadeIn(withDuration: 0.3)
+                ]),
+                .wait(forDuration: 1.5),
+                .group([
+                    .moveBy(x: 0, y: 20, duration: 0.3),
+                    .fadeOut(withDuration: 0.3)
+                ]),
+                .removeFromParent()
+            ]))
+        } else {
+            devModeIndicator?.removeFromParent()
+            devModeIndicator = nil
+
+            // Deactivate feedback
+            let toast = SKLabelNode(text: "🔒 개발자 모드 비활성화")
+            toast.fontName = "Helvetica-Bold"
+            toast.fontSize = 16
+            toast.fontColor = C.textDim
+            toast.position = CGPoint(x: size.width / 2, y: size.height / 2 - 50)
+            toast.zPosition = 100
+            addChild(toast)
+
+            toast.run(.sequence([
+                .group([
+                    .moveBy(x: 0, y: 30, duration: 0.3),
+                    .fadeIn(withDuration: 0.3)
+                ]),
+                .wait(forDuration: 1.5),
+                .group([
+                    .moveBy(x: 0, y: 20, duration: 0.3),
+                    .fadeOut(withDuration: 0.3)
+                ]),
+                .removeFromParent()
+            ]))
         }
     }
 }
