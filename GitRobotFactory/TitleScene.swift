@@ -1,0 +1,108 @@
+import SpriteKit
+
+class TitleScene: SKScene {
+    override func didMove(to view: SKView) {
+        backgroundColor = C.bg
+        setupScene()
+    }
+    
+    private func setupScene() {
+        let mid = CGPoint(x: size.width/2, y: size.height/2)
+        
+        // Grid bg
+        for x in stride(from: 0, to: size.width, by: 40) {
+            let line = SKShapeNode(rectOf: CGSize(width: 0.5, height: size.height))
+            line.fillColor = NSColor(white: 1, alpha: 0.02)
+            line.strokeColor = .clear
+            line.position = CGPoint(x: x, y: size.height/2)
+            addChild(line)
+        }
+        for y in stride(from: 0, to: size.height, by: 40) {
+            let line = SKShapeNode(rectOf: CGSize(width: size.width, height: 0.5))
+            line.fillColor = NSColor(white: 1, alpha: 0.02)
+            line.strokeColor = .clear
+            line.position = CGPoint(x: size.width/2, y: y)
+            addChild(line)
+        }
+        
+        // Floating emojis bg
+        for (i, emoji) in ["🤖","⚙️","🔧","🦾","🔩","💡","🛡️","🚀"].enumerated() {
+            let node = SKLabelNode(text: emoji)
+            node.fontSize = 28
+            node.alpha = 0.06
+            node.position = CGPoint(x: 100 + CGFloat(i % 4) * 250, y: 150 + CGFloat(i / 4) * 350)
+            let float = SKAction.sequence([
+                .moveBy(x: 0, y: 15, duration: 2 + Double(i) * 0.3),
+                .moveBy(x: 0, y: -15, duration: 2 + Double(i) * 0.3)
+            ])
+            node.run(.repeatForever(float))
+            addChild(node)
+        }
+        
+        // Robot icon
+        let robot = SKLabelNode(text: "🤖")
+        robot.fontSize = 80
+        robot.position = CGPoint(x: mid.x, y: mid.y + 120)
+        robot.run(.repeatForever(.sequence([
+            .moveBy(x: 0, y: -12, duration: 2),
+            .moveBy(x: 0, y: 12, duration: 2)
+        ])))
+        addChild(robot)
+        
+        // Title
+        let title = SKLabelNode(text: "Git Robot Factory")
+        title.fontName = "Helvetica-Bold"
+        title.fontSize = 44
+        title.fontColor = C.green
+        title.position = CGPoint(x: mid.x, y: mid.y + 30)
+        addChild(title)
+        
+        let subtitle = SKLabelNode(text: "로봇을 조립하며 배우는 Git Flow")
+        subtitle.fontName = "Helvetica"
+        subtitle.fontSize = 16
+        subtitle.fontColor = C.textDim
+        subtitle.position = CGPoint(x: mid.x, y: mid.y - 5)
+        addChild(subtitle)
+        
+        // Start button
+        let btn = ButtonNode(text: "🏭  공장 가동 시작", width: 240, height: 50, color: C.green, fontSize: 17)
+        btn.position = CGPoint(x: mid.x, y: mid.y - 70)
+        btn.action = { [weak self] in
+            self?.goToChapters()
+        }
+        addChild(btn)
+        
+        // Stats
+        let data = GameData.shared
+        if !data.collectedRobots.isEmpty {
+            let stats = makeLabel("⭐ \(data.totalStars)  |  🤖 \(data.collectedRobots.count)대 수집", size: 13, color: C.textDim)
+            stats.position = CGPoint(x: mid.x, y: mid.y - 120)
+            addChild(stats)
+        }
+        
+        // Bottom concepts
+        let concepts = ["commit", "branch", "merge", "release", "hotfix"]
+        for (i, c) in concepts.enumerated() {
+            let label = makeLabel(c, size: 11, color: C.textFaint, mono: true)
+            label.position = CGPoint(x: CGFloat(i - 2) * 120 + mid.x, y: 30)
+            addChild(label)
+        }
+    }
+    
+    private func goToChapters() {
+        let scene = ChapterScene(size: size)
+        scene.scaleMode = .aspectFill
+        view?.presentScene(scene, transition: .push(with: .left, duration: 0.4))
+    }
+    
+    override func mouseUp(with event: NSEvent) {
+        let loc = event.location(in: self)
+        let nodes = self.nodes(at: loc)
+        for node in nodes {
+            if let btn = node as? ButtonNode ?? node.parent as? ButtonNode {
+                btn.action?()
+                return
+            }
+        }
+    }
+}

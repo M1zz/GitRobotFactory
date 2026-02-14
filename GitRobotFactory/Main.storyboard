@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22505"/>
+    </dependencies>
+    <scenes>
+        <!--Game View Controller-->
+        <scene sceneID="hIz-AP-V5Q">
+            <objects>
+                <viewController id="B8D-0N-5wS" customClass="GameViewController" customModule="GitRobotFactory" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="SKV-Nz-Cfj">
+                        <rect key="frame" x="0.0" y="0.0" width="1200" height="800"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </view>
+                </viewController>
+            </objects>
+            <point key="canvasLocation" x="140" y="140"/>
+        </scene>
+    </scenes>
+</document>
