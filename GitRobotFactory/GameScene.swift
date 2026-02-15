@@ -97,29 +97,29 @@ class GameScene: SKScene {
     // Alias for compatibility
     private var leftWidth: CGFloat { gitPanelWidth }
     
-    // Y positions - Calculated to prevent overlap
+    // Y positions - Calculated to prevent overlap (checklist collapsed by default for space)
     private var missionHeaderY: CGFloat {
         size.height - topBarH - minMargin - missionHeaderHeight/2
     }
     private var robotCenterY: CGFloat {
         // Position robot: below mission header with margin, considering head slot
         let headerBottom = missionHeaderY - missionHeaderHeight/2
-        let robotHeadOffset: CGFloat = 95  // Updated from RobotNode.swift (reduced from 110)
+        let robotHeadOffset: CGFloat = 100  // From RobotNode.swift
         return headerBottom - minMargin - robotHeadOffset - robotSlotSize/2
     }
     private var assemblyZoneCenterY: CGFloat {
         // Position assembly zone: above terminal with margin, considering card height
         let terminalY = terminalH/2 + 10  // Actual terminal center position
         let terminalTop = terminalY + 110/2  // Terminal bg height is 110
-        let cardOffset: CGFloat = 120  // Updated from AssemblyZone.swift (reduced from 140)
+        let cardOffset: CGFloat = 130  // From AssemblyZone.swift
         return terminalTop + minMargin + cardOffset + partCardHeight/2
     }
     private var fileSystemY: CGFloat { size.height - topBarH - 90 }
     private var robotAreaY: CGFloat { (size.height - topBarH + terminalH) / 2 }
     private var checklistY: CGFloat { terminalH + 100 }
     
-    // 체크리스트 상태
-    private var isChecklistVisible: Bool = true
+    // 체크리스트 상태 - 기본적으로 접어서 공간 확보
+    private var isChecklistVisible: Bool = false  // Changed to false to save space
     
     // Sub-nodes
     private var robotNode = RobotNode()
