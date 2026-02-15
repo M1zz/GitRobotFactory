@@ -87,7 +87,7 @@ class GameScene: SKScene {
     private let missionHeaderHeight: CGFloat = 60      // Mission header total height
     private let robotSlotSize: CGFloat = 62           // Robot slot dimensions
     private let partCardHeight: CGFloat = 125         // Part card height
-    private let minMargin: CGFloat = 25               // Minimum spacing between elements
+    private let minMargin: CGFloat = 20               // Minimum spacing between elements (reduced to fit)
 
     // 패널 X 좌표
     private var gitPanelCenterX: CGFloat { gitPanelWidth / 2 }
@@ -104,14 +104,15 @@ class GameScene: SKScene {
     private var robotCenterY: CGFloat {
         // Position robot: below mission header with margin, considering head slot
         let headerBottom = missionHeaderY - missionHeaderHeight/2
-        let robotHeadOffset: CGFloat = 110  // From RobotNode.swift
+        let robotHeadOffset: CGFloat = 95  // Updated from RobotNode.swift (reduced from 110)
         return headerBottom - minMargin - robotHeadOffset - robotSlotSize/2
     }
     private var assemblyZoneCenterY: CGFloat {
         // Position assembly zone: above terminal with margin, considering card height
-        let terminalTop = terminalH + 10  // Terminal position offset
-        let cardOffset: CGFloat = 140  // From AssemblyZone.swift
-        return terminalTop + terminalH/2 + minMargin + cardOffset + partCardHeight/2
+        let terminalY = terminalH/2 + 10  // Actual terminal center position
+        let terminalTop = terminalY + 110/2  // Terminal bg height is 110
+        let cardOffset: CGFloat = 120  // Updated from AssemblyZone.swift (reduced from 140)
+        return terminalTop + minMargin + cardOffset + partCardHeight/2
     }
     private var fileSystemY: CGFloat { size.height - topBarH - 90 }
     private var robotAreaY: CGFloat { (size.height - topBarH + terminalH) / 2 }
