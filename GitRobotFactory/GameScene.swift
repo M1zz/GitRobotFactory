@@ -79,9 +79,15 @@ class GameScene: SKScene {
     private let robotPanelWidth: CGFloat = 420  // 가운데: 로봇 조립
     private let graphPanelWidth: CGFloat = 400  // 오른쪽: Git Graph
     private let topBarH: CGFloat = 70           // 상단바 높이
-    private let terminalH: CGFloat = 85         // 터미널 높이 (reduced to prevent overlap)
-    private let padding: CGFloat = 28           // 기본 여백 (넉넉하게)
+    private let terminalH: CGFloat = 85         // 터미널 높이
+    private let padding: CGFloat = 28           // 기본 여백
     private let elementSpacing: CGFloat = 18    // 요소 간 간격
+
+    // Element heights - CRITICAL for preventing overlap
+    private let missionHeaderHeight: CGFloat = 60      // Mission header total height
+    private let robotSlotSize: CGFloat = 62           // Robot slot dimensions
+    private let partCardHeight: CGFloat = 125         // Part card height
+    private let minMargin: CGFloat = 25               // Minimum spacing between elements
 
     // 패널 X 좌표
     private var gitPanelCenterX: CGFloat { gitPanelWidth / 2 }
@@ -91,11 +97,25 @@ class GameScene: SKScene {
     // Alias for compatibility
     private var leftWidth: CGFloat { gitPanelWidth }
     
-    // Y positions
-    private var missionHeaderY: CGFloat { size.height - topBarH - 50 }  // Raised to prevent overlap with robot
-    private var fileSystemY: CGFloat { size.height - topBarH - 90 }  // 섹션 타이틀 바로 아래
+    // Y positions - Calculated to prevent overlap
+    private var missionHeaderY: CGFloat {
+        size.height - topBarH - minMargin - missionHeaderHeight/2
+    }
+    private var robotCenterY: CGFloat {
+        // Position robot: below mission header with margin, considering head slot
+        let headerBottom = missionHeaderY - missionHeaderHeight/2
+        let robotHeadOffset: CGFloat = 110  // From RobotNode.swift
+        return headerBottom - minMargin - robotHeadOffset - robotSlotSize/2
+    }
+    private var assemblyZoneCenterY: CGFloat {
+        // Position assembly zone: above terminal with margin, considering card height
+        let terminalTop = terminalH + 10  // Terminal position offset
+        let cardOffset: CGFloat = 140  // From AssemblyZone.swift
+        return terminalTop + terminalH/2 + minMargin + cardOffset + partCardHeight/2
+    }
+    private var fileSystemY: CGFloat { size.height - topBarH - 90 }
     private var robotAreaY: CGFloat { (size.height - topBarH + terminalH) / 2 }
-    private var checklistY: CGFloat { terminalH + 100 }  // 체크리스트 Y (터미널 위)
+    private var checklistY: CGFloat { terminalH + 100 }
     
     // 체크리스트 상태
     private var isChecklistVisible: Bool = true
@@ -514,12 +534,12 @@ class GameScene: SKScene {
         robotTitle.position = CGPoint(x: robotPanelCenterX, y: size.height - topBarH - 25)
         addChild(robotTitle)
         
-        // 로봇 (위쪽)
-        robotNode.position = CGPoint(x: robotPanelCenterX, y: midY + 100)  // Raised for better spacing
+        // 로봇 (위쪽) - Positioned with calculated spacing to prevent overlap
+        robotNode.position = CGPoint(x: robotPanelCenterX, y: robotCenterY)
         addChild(robotNode)
 
-        // 부품 선택 영역 (아래쪽) - positioned with proper margin above terminal
-        assemblyZone.position = CGPoint(x: robotPanelCenterX, y: midY - 50)  // Raised to prevent overlap with terminal
+        // 부품 선택 영역 (아래쪽) - Positioned with calculated spacing above terminal
+        assemblyZone.position = CGPoint(x: robotPanelCenterX, y: assemblyZoneCenterY)
         addChild(assemblyZone)
         
         // Wire up assembly callbacks
