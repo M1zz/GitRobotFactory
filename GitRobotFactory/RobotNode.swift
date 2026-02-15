@@ -11,13 +11,14 @@ class RobotNode: SKNode {
     required init?(coder: NSCoder) { fatalError() }
     
     private func setupSlots() {
+        // Increased spacing for better visibility
         let layout: [(PartSlot, CGPoint)] = [
-            (.head, CGPoint(x: 0, y: 80)),
-            (.torso, CGPoint(x: 0, y: 20)),
-            (.leftArm, CGPoint(x: -60, y: 20)),
-            (.rightArm, CGPoint(x: 60, y: 20)),
-            (.legs, CGPoint(x: 0, y: -45)),
-            (.backpack, CGPoint(x: 0, y: -100)),
+            (.head, CGPoint(x: 0, y: 110)),
+            (.torso, CGPoint(x: 0, y: 30)),
+            (.leftArm, CGPoint(x: -85, y: 30)),
+            (.rightArm, CGPoint(x: 85, y: 30)),
+            (.legs, CGPoint(x: 0, y: -60)),
+            (.backpack, CGPoint(x: 0, y: -135)),
         ]
         
         for (slot, pos) in layout {
@@ -31,8 +32,9 @@ class RobotNode: SKNode {
     
     private func createSlotNode(slot: PartSlot) -> SKNode {
         let container = SKNode()
-        
-        let size = slot == .torso ? CGSize(width: 55, height: 55) : CGSize(width: 48, height: 48)
+
+        // Increased slot sizes
+        let size = slot == .torso ? CGSize(width: 70, height: 70) : CGSize(width: 62, height: 62)
         let bg = SKShapeNode(rectOf: size, cornerRadius: 8)
         bg.fillColor = NSColor(white: 0.06, alpha: 1)
         bg.strokeColor = C.border

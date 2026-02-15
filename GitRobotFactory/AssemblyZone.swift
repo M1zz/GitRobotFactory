@@ -51,12 +51,12 @@ class AssemblyZone: SKNode {
     
     // MARK: - Part Picker
     private func showPartPicker(_ parts: [RobotPart]) {
-        let title = makeLabel("부품을 선택하세요", size: 13, color: C.textDim, bold: true)
-        title.position = CGPoint(x: 0, y: 50)
+        let title = makeLabel("부품을 선택하세요", size: 15, color: C.textDim, bold: true)  // Increased from 13
+        title.position = CGPoint(x: 0, y: 70)  // Moved down slightly
         addChild(title)
         currentNodes.append(title)
-        
-        let spacing: CGFloat = 140
+
+        let spacing: CGFloat = 180  // Increased from 140 for better visibility
         let startX = -CGFloat(parts.count - 1) * spacing / 2
         
         for (i, part) in parts.enumerated() {

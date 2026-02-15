@@ -135,29 +135,29 @@ class PartCardNode: SKNode {
     let bg: SKShapeNode
     var onSelect: ((RobotPart) -> Void)?
     
-    init(part: RobotPart, cardSize: CGSize = CGSize(width: 120, height: 130)) {
+    init(part: RobotPart, cardSize: CGSize = CGSize(width: 150, height: 160)) {  // Increased from 120x130
         self.part = part
         bg = SKShapeNode(rectOf: cardSize, cornerRadius: 12)
         bg.fillColor = NSColor(white: 0.08, alpha: 1)
         bg.strokeColor = C.border
         bg.lineWidth = 1.5
-        
+
         super.init()
         // Don't enable user interaction - let GameScene handle drag & drop
         isUserInteractionEnabled = false
 
         addChild(bg)
-        
-        let emoji = makeEmoji(part.emoji, size: 36)
-        emoji.position = CGPoint(x: 0, y: 20)
+
+        let emoji = makeEmoji(part.emoji, size: 48)  // Increased from 36
+        emoji.position = CGPoint(x: 0, y: 25)
         addChild(emoji)
-        
-        let nameLabel = makeLabel(part.name, size: 12, color: C.text, bold: true)
+
+        let nameLabel = makeLabel(part.name, size: 14, color: C.text, bold: true)  // Increased from 12
         nameLabel.position = CGPoint(x: 0, y: -15)
         addChild(nameLabel)
-        
-        let slotLabel = makeLabel(part.slot.label, size: 10, color: C.textDim)
-        slotLabel.position = CGPoint(x: 0, y: -32)
+
+        let slotLabel = makeLabel(part.slot.label, size: 11, color: C.textDim)  // Increased from 10
+        slotLabel.position = CGPoint(x: 0, y: -35)
         addChild(slotLabel)
         
         if let port = part.portId {
