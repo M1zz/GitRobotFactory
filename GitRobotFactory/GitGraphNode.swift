@@ -1,10 +1,19 @@
 import SpriteKit
 
 class GitGraphNode: SKNode {
-    private var entries: [(branch: String, label: String, type: String)] = []
+    private struct CommitEntry {
+        let branch: String
+        let label: String
+        let type: String
+        let commitId: String
+        let timestamp: Date
+    }
+
+    private var entries: [CommitEntry] = []
     private let maxVisible = 10
-    private let entryHeight: CGFloat = 45  // Increased for better spacing
+    private let entryHeight: CGFloat = 50  // Increased for commit ID and time
     private let laneWidth: CGFloat = 22
+    private var commitCounter = 0
 
     // Track active branches and their lanes
     private var branchLanes: [String: Int] = ["main": 0]
@@ -16,7 +25,17 @@ class GitGraphNode: SKNode {
     required init?(coder: NSCoder) { fatalError() }
 
     func addEntry(branch: String, label: String, type: String = "commit") {
-        entries.append((branch, label, type))
+        // Generate commit ID (7-character hash-like)
+        let commitId = generateCommitId()
+
+        let entry = CommitEntry(
+            branch: branch,
+            label: label,
+            type: type,
+            commitId: commitId,
+            timestamp: Date()
+        )
+        entries.append(entry)
 
         // Assign lane to new branch
         if branchLanes[branch] == nil {
@@ -27,10 +46,38 @@ class GitGraphNode: SKNode {
         rebuild()
     }
 
+    private func generateCommitId() -> String {
+        commitCounter += 1
+        // Generate a git-like short hash
+        let chars = "0123456789abcdef"
+        var id = ""
+        var seed = commitCounter * 12345
+        for _ in 0..<7 {
+            seed = (seed * 1103515245 + 12345) & 0x7fffffff
+            let index = chars.index(chars.startIndex, offsetBy: seed % 16)
+            id.append(chars[index])
+        }
+        return id
+    }
+
+    private func relativeTime(from date: Date) -> String {
+        let seconds = Int(-date.timeIntervalSinceNow)
+        if seconds < 60 {
+            return "\(seconds)초 전"
+        } else if seconds < 3600 {
+            return "\(seconds / 60)분 전"
+        } else if seconds < 86400 {
+            return "\(seconds / 3600)시간 전"
+        } else {
+            return "\(seconds / 86400)일 전"
+        }
+    }
+
     func reset() {
         entries = []
         branchLanes = ["main": 0]
         nextLane = 1
+        commitCounter = 0
         rebuild()
     }
     
@@ -88,17 +135,29 @@ class GitGraphNode: SKNode {
                 }
             }
 
-            // Branch badge
+            // Branch badge (top)
             let badgeLabel = SKLabelNode(text: entry.branch)
             badgeLabel.fontName = "Menlo"
             badgeLabel.fontSize = 8
             badgeLabel.fontColor = C.branchColor(entry.branch)
             badgeLabel.horizontalAlignmentMode = .left
             badgeLabel.verticalAlignmentMode = .center
-            badgeLabel.position = CGPoint(x: 14, y: 6)
+            badgeLabel.position = CGPoint(x: 14, y: 12)
             row.addChild(badgeLabel)
 
-            // Commit message (below branch name)
+            // Commit ID and time (middle)
+            let timeStr = relativeTime(from: entry.timestamp)
+            let metaText = "\(entry.commitId) • \(timeStr)"
+            let metaLabel = SKLabelNode(text: metaText)
+            metaLabel.fontName = "Menlo"
+            metaLabel.fontSize = 6
+            metaLabel.fontColor = NSColor(white: 0.45, alpha: 1)
+            metaLabel.horizontalAlignmentMode = .left
+            metaLabel.verticalAlignmentMode = .center
+            metaLabel.position = CGPoint(x: 14, y: 2)
+            row.addChild(metaLabel)
+
+            // Commit message (bottom)
             let messageLabel = SKLabelNode(text: entry.label)
             messageLabel.fontName = "Menlo"
             messageLabel.fontSize = 7
@@ -107,7 +166,7 @@ class GitGraphNode: SKNode {
             messageLabel.verticalAlignmentMode = .center
             messageLabel.preferredMaxLayoutWidth = 250
             messageLabel.numberOfLines = 1
-            messageLabel.position = CGPoint(x: 14, y: -6)
+            messageLabel.position = CGPoint(x: 14, y: -8)
             row.addChild(messageLabel)
 
             // Type indicator
