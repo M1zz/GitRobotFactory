@@ -91,7 +91,7 @@ class GameData {
     
     // All missions
     static let missions: [Mission] = [
-        Mission(id: 1, chapter: 1, chapterTitle: "Ch1: 기본 조립", title: "첫 번째 로봇", subtitle: "commit",
+        Mission(id: 1, chapter: 1, chapterTitle: "Ch1: 기본 조립", title: "첫 번째 로봇", subtitle: "Commit 배우기",
                 briefing: "출하 창고(main)에서 첫 로봇을 만듭니다.\n부품을 골라 장착하면 작업이 기록(commit)됩니다.", gitLesson: "commit = 작업의 스냅샷",
                 phases: [
                     MissionPhase(instruction: "부품 선반에서 '기본 프레임'을 골라 장착하세요", explanation: "첫 번째 커밋: 프로젝트의 첫 기록입니다.", assemblyAction: .pickPart([basicFrame, armor, power]), gitCommand: "git commit -m \"로봇 뼈대 설계\"", branchContext: "main"),

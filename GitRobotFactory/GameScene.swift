@@ -1064,43 +1064,35 @@ class GameScene: SKScene {
         }
     }
 
-    private func showTodoChecklist() {
-        todoUI?.removeFromParent()
-        todoUI = nil
-
-        guard !currentTodos.isEmpty else { return }
-
+    private func createChecklistNode(at position: CGPoint, panelWidth: CGFloat) -> SKNode {
         let group = SKNode()
         group.name = "todoChecklist"
-        group.zPosition = 7
 
-        // 체크리스트: 터미널 바로 위에 고정, 아이템은 위로 펼쳐짐
-        let itemHeight: CGFloat = 24
-        let leftX: CGFloat = padding + 14
-        let toggleY = terminalH + 20  // 터미널 바로 위
-        
+        let itemHeight: CGFloat = 20
+        let leftX: CGFloat = -(panelWidth / 2 - padding - 20)
+
         // 토글 버튼
         let toggleBtn = SKNode()
         toggleBtn.name = "checklistToggle"
-        
-        let toggleBg = SKShapeNode(rectOf: CGSize(width: gitPanelWidth - padding * 2, height: 28), cornerRadius: 6)
+
+        let toggleBg = SKShapeNode(rectOf: CGSize(width: panelWidth - padding * 2, height: 26), cornerRadius: 6)
         toggleBg.fillColor = C.purple.withAlphaComponent(0.15)
         toggleBg.strokeColor = C.purple.withAlphaComponent(0.5)
         toggleBg.lineWidth = 1
         toggleBtn.addChild(toggleBg)
-        
-        let toggleIcon = isChecklistVisible ? "▲" : "▼"  // 위로 펼쳐지므로 아이콘 방향 변경
+
+        let toggleIcon = isChecklistVisible ? "▼" : "▶"
         let completedCount = completedTodos.count
         let totalCount = currentTodos.count
-        let toggleLabel = makeLabel("\(toggleIcon) 체크리스트 \(completedCount)/\(totalCount)", size: 11, color: C.purple, bold: true, mono: true)
+        let toggleLabel = makeLabel("\(toggleIcon) 체크리스트 \(completedCount)/\(totalCount)", size: 10, color: C.purple, bold: true, mono: true)
         toggleBtn.addChild(toggleLabel)
-        
-        toggleBtn.position = CGPoint(x: gitPanelCenterX, y: toggleY)
+
+        toggleBtn.position = CGPoint(x: 0, y: 0)
         group.addChild(toggleBtn)
 
-        // 체크리스트 내용 - 위로 펼쳐짐 (터미널과 겹치지 않게)
+        // 체크리스트 내용 - 아래로 펼쳐짐
         if isChecklistVisible {
-            var yOffset = toggleY + 30  // 토글 버튼 위부터 시작
+            var yOffset: CGFloat = -18
 
             for (index, todo) in currentTodos.enumerated() {
                 let isCompleted = completedTodos.contains(todo)
@@ -1108,22 +1100,27 @@ class GameScene: SKScene {
                 let todoText = getTodoText(for: todo)
                 let color = isCompleted ? C.green : C.text
 
-                let label = makeLabel("\(checkbox) \(index + 1). \(todoText)", size: 10, color: color, mono: true)
+                let label = makeLabel("\(checkbox) \(index + 1). \(todoText)", size: 9, color: color, mono: true)
                 label.horizontalAlignmentMode = .left
                 label.position = CGPoint(x: leftX, y: yOffset)
                 group.addChild(label)
 
-                yOffset += itemHeight
+                yOffset -= itemHeight
             }
         }
 
-        addChild(group)
-        todoUI = group
+        group.position = position
+        return group
+    }
+
+    private func showTodoChecklist() {
+        // Now handled inside showFileSystemUI()
+        showFileSystemUI()
     }
     
     private func toggleChecklist() {
         isChecklistVisible.toggle()
-        showTodoChecklist()
+        showFileSystemUI()  // Redraw entire file system UI with updated checklist state
     }
 
     private func getTodoText(for item: TodoItem) -> String {
@@ -1281,6 +1278,13 @@ class GameScene: SKScene {
             commitBtn.action = { [weak self] in self?.performCommit() }
         }
         group.addChild(commitBtn)
+
+        // Add TODO checklist below commit button
+        if !currentTodos.isEmpty {
+            yOffset -= 70
+            let checklistNode = createChecklistNode(at: CGPoint(x: centerX, y: yOffset), panelWidth: panelWidth)
+            group.addChild(checklistNode)
+        }
 
         addChild(group)
         fileSystemUI = group
