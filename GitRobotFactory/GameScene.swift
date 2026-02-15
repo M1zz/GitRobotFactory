@@ -105,7 +105,6 @@ class GameScene: SKScene {
     private var assemblyZone = AssemblyZone()
     
     // UI elements
-    private var instructionLabel: SKLabelNode!
     private var branchBadge: SKNode!
     private var phaseCounter: SKLabelNode!
     private var progressBar: SKShapeNode!
@@ -1562,11 +1561,11 @@ class GameScene: SKScene {
         data.completedMissions.insert(missionId)
         data.totalStars += mission.stars
         data.collectedRobots.append((emoji: mission.rewardEmoji, name: mission.rewardName))
-        
+
         assemblyZone.clearCurrent()
         childNode(withName: "instructionBg")?.removeFromParent()
         childNode(withName: "instructionPrefix")?.removeFromParent()
-        instructionLabel.text = ""
+        childNode(withName: "missionHeader")?.removeFromParent()
         
         let group = SKNode()
         group.zPosition = 30
