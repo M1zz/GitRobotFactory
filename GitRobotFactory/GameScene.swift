@@ -92,7 +92,7 @@ class GameScene: SKScene {
     private var leftWidth: CGFloat { gitPanelWidth }
     
     // Y positions
-    private var missionHeaderY: CGFloat { size.height - topBarH - 65 }  // Moved down to avoid overlap with Git Graph
+    private var missionHeaderY: CGFloat { size.height - topBarH - 50 }  // Raised to prevent overlap with robot
     private var fileSystemY: CGFloat { size.height - topBarH - 90 }  // 섹션 타이틀 바로 아래
     private var robotAreaY: CGFloat { (size.height - topBarH + terminalH) / 2 }
     private var checklistY: CGFloat { terminalH + 100 }  // 체크리스트 Y (터미널 위)
