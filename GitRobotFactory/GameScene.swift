@@ -509,11 +509,11 @@ class GameScene: SKScene {
         addChild(robotTitle)
         
         // 로봇 (위쪽)
-        robotNode.position = CGPoint(x: robotPanelCenterX, y: midY + 80)
+        robotNode.position = CGPoint(x: robotPanelCenterX, y: midY + 100)  // Raised for better spacing
         addChild(robotNode)
-        
-        // 부품 선택 영역 (아래쪽)
-        assemblyZone.position = CGPoint(x: robotPanelCenterX, y: midY - 80)
+
+        // 부품 선택 영역 (아래쪽) - positioned with proper margin above terminal
+        assemblyZone.position = CGPoint(x: robotPanelCenterX, y: midY - 50)  // Raised to prevent overlap with terminal
         addChild(assemblyZone)
         
         // Wire up assembly callbacks
