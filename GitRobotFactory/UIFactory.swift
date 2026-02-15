@@ -143,8 +143,9 @@ class PartCardNode: SKNode {
         bg.lineWidth = 1.5
         
         super.init()
-        isUserInteractionEnabled = true
-        
+        // Don't enable user interaction - let GameScene handle drag & drop
+        isUserInteractionEnabled = false
+
         addChild(bg)
         
         let emoji = makeEmoji(part.emoji, size: 36)
@@ -168,27 +169,8 @@ class PartCardNode: SKNode {
     
     required init?(coder: NSCoder) { fatalError() }
     
-    override func mouseEntered(with event: NSEvent) {
-        run(.scale(to: 1.08, duration: 0.1))
-        bg.strokeColor = C.blue
-        bg.fillColor = NSColor(white: 0.12, alpha: 1)
-    }
-    
-    override func mouseExited(with event: NSEvent) {
-        run(.scale(to: 1.0, duration: 0.1))
-        bg.strokeColor = C.border
-        bg.fillColor = NSColor(white: 0.08, alpha: 1)
-    }
-    
-    override func mouseUp(with event: NSEvent) {
-        // Flash green
-        bg.strokeColor = C.green
-        bg.run(.sequence([
-            .wait(forDuration: 0.2),
-            .run { self.bg.strokeColor = C.border }
-        ]))
-        onSelect?(part)
-    }
+    // Mouse events are now handled by GameScene for drag & drop
+    // Visual feedback will be provided through GameScene's drag logic
 }
 
 // MARK: - Conveyor Merge Node (clickable)

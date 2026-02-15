@@ -78,7 +78,7 @@ class AssemblyZone: SKNode {
             currentNodes.append(card)
         }
         
-        let hint = makeLabel("💡 부품을 클릭하면 로봇에 장착됩니다", size: 10, color: C.textFaint)
+        let hint = makeLabel("💡 부품을 드래그해서 로봇 슬롯에 드롭하세요", size: 10, color: C.textFaint)
         hint.position = CGPoint(x: 0, y: -90)
         addChild(hint)
         currentNodes.append(hint)
