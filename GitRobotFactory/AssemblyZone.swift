@@ -44,39 +44,36 @@ class AssemblyZone: SKNode {
     
     func clearCurrent() {
         for node in currentNodes {
-            node.run(.sequence([.fadeOut(withDuration: 0.15), .removeFromParent()]))
+            node.run(.sequence([.fadeOut(withDuration: 0.1), .removeFromParent()]))
         }
         currentNodes = []
     }
     
-    // MARK: - Part Picker
+    // MARK: - Part Picker (Compact)
     private func showPartPicker(_ parts: [RobotPart]) {
-        let title = makeLabel("부품을 선택하세요", size: 18, color: C.textDim, bold: true)
-        title.position = CGPoint(x: 0, y: -15)  // Positioned to avoid robot backpack slot above
+        // Title + Hint in one line
+        let title = makeLabel("부품 선택  💡 드래그 → 슬롯", size: 11, color: C.textDim, bold: true)
+        title.position = CGPoint(x: 0, y: 58)
         addChild(title)
         currentNodes.append(title)
 
-        let hint = makeLabel("💡 부품을 드래그해서 로봇 슬롯에 드롭하세요", size: 12, color: C.textFaint)
-        hint.position = CGPoint(x: 0, y: -40)  // Below title with spacing
-        addChild(hint)
-        currentNodes.append(hint)
-
-        let spacing: CGFloat = 105  // Compact spacing for 3 cards
+        // Tight card spacing
+        let spacing: CGFloat = 102  // Just enough for card width (95) + 7px gap
         let startX = -CGFloat(parts.count - 1) * spacing / 2
 
         for (i, part) in parts.enumerated() {
             let card = PartCardNode(part: part)
-            card.position = CGPoint(x: startX + CGFloat(i) * spacing, y: -95)  // Positioned to clear both robot above and left panel commit button
+            card.position = CGPoint(x: startX + CGFloat(i) * spacing, y: -5)
             card.onSelect = { [weak self] p in
                 self?.onPartSelected?(p)
             }
 
             // Animate in
             card.alpha = 0
-            card.setScale(0.8)
+            card.setScale(0.9)
             card.run(.group([
-                .fadeIn(withDuration: 0.2),
-                .scale(to: 1.0, duration: 0.2)
+                .fadeIn(withDuration: 0.12),
+                .scale(to: 1.0, duration: 0.12)
             ]))
 
             addChild(card)
@@ -84,163 +81,162 @@ class AssemblyZone: SKNode {
         }
     }
     
-    // MARK: - Workstation Opener
+    // MARK: - Workstation Opener (Compact)
     private func showWorkstationOpener(_ name: String) {
-        let title = makeLabel("새 워크스테이션 개설", size: 17, color: C.textDim, bold: true)
-        title.position = CGPoint(x: 0, y: 60)
+        let title = makeLabel("새 워크스테이션", size: 13, color: C.textDim, bold: true)
+        title.position = CGPoint(x: 0, y: 40)
         addChild(title)
         currentNodes.append(title)
 
-        let btn = ButtonNode(text: "🔀  \(name)", width: 260, height: 50, color: C.branchColor(name), fontSize: 16)
-        btn.position = CGPoint(x: 0, y: 0)
+        let btn = ButtonNode(text: "🔀 \(name)", width: 200, height: 40, color: C.branchColor(name), fontSize: 13)
+        btn.position = CGPoint(x: 0, y: -5)
         btn.action = { [weak self] in self?.onWorkstationOpened?(name) }
         
-        btn.alpha = 0; btn.setScale(0.8)
-        btn.run(.group([.fadeIn(withDuration: 0.2), .scale(to: 1.0, duration: 0.2)]))
+        btn.alpha = 0; btn.setScale(0.85)
+        btn.run(.group([.fadeIn(withDuration: 0.15), .scale(to: 1.0, duration: 0.15)]))
         
         addChild(btn)
         currentNodes.append(btn)
         
-        let hint = makeLabel("클릭하여 개설", size: 13, color: C.textFaint)
-        hint.position = CGPoint(x: 0, y: -40)
+        let hint = makeLabel("클릭하여 개설", size: 10, color: C.textFaint)
+        hint.position = CGPoint(x: 0, y: -35)
         addChild(hint)
         currentNodes.append(hint)
     }
     
-    // MARK: - Part Installer
+    // MARK: - Part Installer (Compact)
     private func showPartInstaller(_ part: RobotPart) {
-        let card = PartCardNode(part: part, cardSize: CGSize(width: 140, height: 150))
+        let card = PartCardNode(part: part, cardSize: CGSize(width: 110, height: 120))
         card.position = CGPoint(x: 0, y: 0)
         card.onSelect = { [weak self] p in self?.onPartSelected?(p) }
         
-        card.alpha = 0; card.setScale(0.8)
-        card.run(.group([.fadeIn(withDuration: 0.2), .scale(to: 1.0, duration: 0.2)]))
+        card.alpha = 0; card.setScale(0.85)
+        card.run(.group([.fadeIn(withDuration: 0.15), .scale(to: 1.0, duration: 0.15)]))
         
         addChild(card)
         currentNodes.append(card)
     }
     
-    // MARK: - Merge UI
+    // MARK: - Merge UI (Compact)
     private func showMergeUI(from: String, to: String) {
         let mergeCard = MergeCardNode(from: from, to: to)
         mergeCard.position = CGPoint(x: 0, y: 0)
         mergeCard.onMerge = { [weak self] in self?.onMerge?(from, to) }
         
-        mergeCard.alpha = 0; mergeCard.setScale(0.8)
-        mergeCard.run(.group([.fadeIn(withDuration: 0.2), .scale(to: 1.0, duration: 0.2)]))
+        mergeCard.alpha = 0; mergeCard.setScale(0.85)
+        mergeCard.run(.group([.fadeIn(withDuration: 0.15), .scale(to: 1.0, duration: 0.15)]))
         
         addChild(mergeCard)
         currentNodes.append(mergeCard)
     }
     
-    // MARK: - Conflict UI
+    // MARK: - Conflict UI (Compact)
     private func showConflictUI(_ partA: RobotPart, _ partB: RobotPart) {
-        let alert = makeLabel("⚡ MERGE CONFLICT!", size: 22, color: C.red, bold: true)
-        alert.position = CGPoint(x: 0, y: 60)
+        let alert = makeLabel("⚡ CONFLICT!", size: 16, color: C.red, bold: true)
+        alert.position = CGPoint(x: 0, y: 45)
         alert.run(.repeatForever(.sequence([
-            .fadeAlpha(to: 0.5, duration: 0.5),
-            .fadeAlpha(to: 1.0, duration: 0.5)
+            .fadeAlpha(to: 0.5, duration: 0.4),
+            .fadeAlpha(to: 1.0, duration: 0.4)
         ])))
         addChild(alert)
         currentNodes.append(alert)
 
-        let desc = makeLabel("포트A를 두 부품이 동시에 사용!", size: 15, color: C.orange)
-        desc.position = CGPoint(x: 0, y: 35)
+        let desc = makeLabel("포트A 충돌!", size: 12, color: C.orange)
+        desc.position = CGPoint(x: 0, y: 25)
         addChild(desc)
         currentNodes.append(desc)
 
-        // Show both parts
-        let aLabel = makeLabel("\(partA.emoji) \(partA.name) → 포트A 유지", size: 15, color: C.green, bold: true)
+        let aLabel = makeLabel("\(partA.emoji) \(partA.name) → A", size: 11, color: C.green, bold: true)
         aLabel.position = CGPoint(x: 0, y: 5)
         addChild(aLabel)
         currentNodes.append(aLabel)
 
-        let bLabel = makeLabel("\(partB.emoji) \(partB.name) → 포트B로 이동", size: 15, color: C.orange, bold: true)
-        bLabel.position = CGPoint(x: 0, y: -18)
+        let bLabel = makeLabel("\(partB.emoji) \(partB.name) → B", size: 11, color: C.orange, bold: true)
+        bLabel.position = CGPoint(x: 0, y: -12)
         addChild(bLabel)
         currentNodes.append(bLabel)
 
-        let btn = ButtonNode(text: "✅ 이렇게 해결!", width: 200, height: 44, color: C.green, fontSize: 16)
-        btn.position = CGPoint(x: 0, y: -55)
+        let btn = ButtonNode(text: "✅ 해결", width: 140, height: 34, color: C.green, fontSize: 12)
+        btn.position = CGPoint(x: 0, y: -45)
         btn.action = { [weak self] in self?.onConflictResolved?() }
         addChild(btn)
         currentNodes.append(btn)
     }
     
-    // MARK: - Tag UI
+    // MARK: - Tag UI (Compact)
     private func showTagUI(_ version: String) {
-        let emoji = makeEmoji("🏷️", size: 52)
-        emoji.position = CGPoint(x: 0, y: 25)
+        let emoji = makeEmoji("🏷️", size: 36)
+        emoji.position = CGPoint(x: 0, y: 20)
         addChild(emoji)
         currentNodes.append(emoji)
 
-        let btn = ButtonNode(text: version, width: 160, height: 44, color: C.yellow, fontSize: 20)
-        btn.position = CGPoint(x: 0, y: -30)
+        let btn = ButtonNode(text: version, width: 120, height: 36, color: C.yellow, fontSize: 14)
+        btn.position = CGPoint(x: 0, y: -25)
         btn.action = { [weak self] in self?.onTagged?(version) }
         
-        btn.alpha = 0; btn.setScale(0.8)
-        btn.run(.group([.fadeIn(withDuration: 0.2), .scale(to: 1.0, duration: 0.2)]))
+        btn.alpha = 0; btn.setScale(0.85)
+        btn.run(.group([.fadeIn(withDuration: 0.15), .scale(to: 1.0, duration: 0.15)]))
         addChild(btn)
         currentNodes.append(btn)
     }
     
-    // MARK: - Ship UI
+    // MARK: - Ship UI (Compact)
     private func showShipUI() {
-        let emoji = makeEmoji("📦", size: 52)
-        emoji.position = CGPoint(x: 0, y: 25)
+        let emoji = makeEmoji("📦", size: 36)
+        emoji.position = CGPoint(x: 0, y: 20)
         addChild(emoji)
         currentNodes.append(emoji)
 
-        let btn = ButtonNode(text: "📦 main에 출하!", width: 220, height: 50, color: C.green, fontSize: 17)
-        btn.position = CGPoint(x: 0, y: -30)
+        let btn = ButtonNode(text: "📦 출하!", width: 160, height: 40, color: C.green, fontSize: 13)
+        btn.position = CGPoint(x: 0, y: -25)
         btn.action = { [weak self] in self?.onShipped?() }
         
-        btn.alpha = 0; btn.setScale(0.8)
-        btn.run(.group([.fadeIn(withDuration: 0.2), .scale(to: 1.0, duration: 0.2)]))
+        btn.alpha = 0; btn.setScale(0.85)
+        btn.run(.group([.fadeIn(withDuration: 0.15), .scale(to: 1.0, duration: 0.15)]))
         addChild(btn)
         currentNodes.append(btn)
     }
     
-    // MARK: - Cleanup UI
+    // MARK: - Cleanup UI (Compact)
     private func showCleanupUI(_ name: String) {
-        let emoji = makeEmoji("🧹", size: 48)
-        emoji.position = CGPoint(x: 0, y: 25)
+        let emoji = makeEmoji("🧹", size: 32)
+        emoji.position = CGPoint(x: 0, y: 20)
         addChild(emoji)
         currentNodes.append(emoji)
 
-        let btn = ButtonNode(text: "🧹 \(name) 정리", width: 240, height: 44, color: NSColor(white: 0.3, alpha: 1), fontSize: 16)
-        btn.position = CGPoint(x: 0, y: -25)
+        let btn = ButtonNode(text: "🧹 \(name) 정리", width: 180, height: 36, color: NSColor(white: 0.25, alpha: 1), fontSize: 12)
+        btn.position = CGPoint(x: 0, y: -20)
         btn.action = { [weak self] in self?.onCleanup?(name) }
         addChild(btn)
         currentNodes.append(btn)
     }
     
-    // MARK: - Emergency UI
+    // MARK: - Emergency UI (Compact)
     private func showEmergencyUI(_ part: RobotPart) {
-        let alert = makeLabel("🚨 긴급 수리", size: 20, color: C.red, bold: true)
+        let alert = makeLabel("🚨 긴급 수리", size: 15, color: C.red, bold: true)
         alert.position = CGPoint(x: 0, y: 50)
-        alert.run(.repeatForever(.sequence([.fadeAlpha(to: 0.5, duration: 0.4), .fadeAlpha(to: 1.0, duration: 0.4)])))
+        alert.run(.repeatForever(.sequence([.fadeAlpha(to: 0.5, duration: 0.35), .fadeAlpha(to: 1.0, duration: 0.35)])))
         addChild(alert)
         currentNodes.append(alert)
         
         let card = PartCardNode(part: part)
-        card.position = CGPoint(x: 0, y: -15)
+        card.position = CGPoint(x: 0, y: -10)
         card.bg.strokeColor = C.red
         card.onSelect = { [weak self] p in self?.onEmergencyFix?(p) }
         addChild(card)
         currentNodes.append(card)
         
         // Red pulse bg
-        let pulse = SKShapeNode(rectOf: CGSize(width: 160, height: 170), cornerRadius: 14)
-        pulse.fillColor = C.red.withAlphaComponent(0.05)
+        let pulse = SKShapeNode(rectOf: CGSize(width: 110, height: 120), cornerRadius: 10)
+        pulse.fillColor = C.red.withAlphaComponent(0.03)
         pulse.strokeColor = .clear
-        pulse.position = CGPoint(x: 0, y: -15)
+        pulse.position = CGPoint(x: 0, y: -10)
         pulse.zPosition = -1
         pulse.run(.repeatForever(.sequence([
-            .run { pulse.fillColor = C.red.withAlphaComponent(0.1) },
-            .wait(forDuration: 0.4),
-            .run { pulse.fillColor = C.red.withAlphaComponent(0.03) },
-            .wait(forDuration: 0.4)
+            .run { pulse.fillColor = C.red.withAlphaComponent(0.08) },
+            .wait(forDuration: 0.35),
+            .run { pulse.fillColor = C.red.withAlphaComponent(0.02) },
+            .wait(forDuration: 0.35)
         ])))
         addChild(pulse)
         currentNodes.append(pulse)
