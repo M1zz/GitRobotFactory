@@ -177,15 +177,21 @@ class GameScene: SKScene {
         title.zPosition = 11
         addChild(title)
 
+        // Branch label
+        let branchLabel = makeLabel("Branch:", size: 12, color: C.textDim, bold: true)
+        branchLabel.position = CGPoint(x: size.width - 670, y: size.height - topBarH/2)
+        branchLabel.zPosition = 11
+        addChild(branchLabel)
+
         // Branch badge
         branchBadge = makeBadge(currentBranch, color: C.branchColor(currentBranch))
-        branchBadge.position = CGPoint(x: size.width - 620, y: size.height - topBarH/2)
+        branchBadge.position = CGPoint(x: size.width - 610, y: size.height - topBarH/2)
         branchBadge.zPosition = 11
         addChild(branchBadge)
 
         // Phase counter
         phaseCounter = makeLabel("Phase 1/\(mission.phases.count)", size: 13, color: C.textDim, mono: true)  // Increased
-        phaseCounter.position = CGPoint(x: size.width - 680, y: size.height - topBarH/2)
+        phaseCounter.position = CGPoint(x: size.width - 740, y: size.height - topBarH/2)
         phaseCounter.zPosition = 11
         addChild(phaseCounter)
 
@@ -197,7 +203,7 @@ class GameScene: SKScene {
     }
 
     private func setupGitToolbar() {
-        let toolbarY = size.height - topBarH + 15  // Inside top bar
+        let toolbarY = size.height - topBarH/2  // Aligned with other top bar elements
         let buttonWidth: CGFloat = 65
         let buttonHeight: CGFloat = 28
         let spacing: CGFloat = 4
@@ -228,13 +234,13 @@ class GameScene: SKScene {
 
             // Icon
             let icon = makeLabel(button.icon, size: 16, color: button.enabled ? C.textDim : NSColor(white: 0.2, alpha: 1))  // Increased
-            icon.position = CGPoint(x: x, y: toolbarY + 6)
+            icon.position = CGPoint(x: x, y: toolbarY + 5)
             icon.zPosition = 13
             addChild(icon)
 
             // Label
             let label = makeLabel(button.text, size: 10, color: button.enabled ? C.textDim : NSColor(white: 0.2, alpha: 1), mono: true)  // Increased
-            label.position = CGPoint(x: x, y: toolbarY - 7)
+            label.position = CGPoint(x: x, y: toolbarY - 8)
             label.zPosition = 13
             addChild(label)
 
