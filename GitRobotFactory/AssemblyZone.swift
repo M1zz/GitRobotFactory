@@ -52,12 +52,12 @@ class AssemblyZone: SKNode {
     // MARK: - Part Picker
     private func showPartPicker(_ parts: [RobotPart]) {
         let title = makeLabel("부품을 선택하세요", size: 18, color: C.textDim, bold: true)
-        title.position = CGPoint(x: 0, y: -50)  // Slightly more space
+        title.position = CGPoint(x: 0, y: -15)  // Positioned to avoid robot backpack slot above
         addChild(title)
         currentNodes.append(title)
 
         let hint = makeLabel("💡 부품을 드래그해서 로봇 슬롯에 드롭하세요", size: 12, color: C.textFaint)
-        hint.position = CGPoint(x: 0, y: -75)  // Below title
+        hint.position = CGPoint(x: 0, y: -40)  // Below title with spacing
         addChild(hint)
         currentNodes.append(hint)
 
@@ -66,7 +66,7 @@ class AssemblyZone: SKNode {
 
         for (i, part) in parts.enumerated() {
             let card = PartCardNode(part: part)
-            card.position = CGPoint(x: startX + CGFloat(i) * spacing, y: -130)  // Balanced positioning
+            card.position = CGPoint(x: startX + CGFloat(i) * spacing, y: -95)  // Positioned to clear both robot above and left panel commit button
             card.onSelect = { [weak self] p in
                 self?.onPartSelected?(p)
             }

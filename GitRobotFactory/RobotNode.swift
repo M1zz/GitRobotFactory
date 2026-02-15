@@ -11,14 +11,14 @@ class RobotNode: SKNode {
     required init?(coder: NSCoder) { fatalError() }
     
     private func setupSlots() {
-        // Balanced spacing for better visual clarity
+        // Balanced spacing optimized to avoid overlap with part selection area
         let layout: [(PartSlot, CGPoint)] = [
             (.head, CGPoint(x: 0, y: 100)),
             (.torso, CGPoint(x: 0, y: 25)),
             (.leftArm, CGPoint(x: -85, y: 25)),
             (.rightArm, CGPoint(x: 85, y: 25)),
-            (.legs, CGPoint(x: 0, y: -55)),
-            (.backpack, CGPoint(x: 0, y: -120)),
+            (.legs, CGPoint(x: 0, y: -50)),
+            (.backpack, CGPoint(x: 0, y: -105)),  // Moved up to avoid overlap
         ]
         
         for (slot, pos) in layout {

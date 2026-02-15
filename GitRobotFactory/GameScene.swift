@@ -109,11 +109,12 @@ class GameScene: SKScene {
         return robotTop - robotHeadOffset
     }
     private var assemblyZoneCenterY: CGFloat {
-        // Position assembly zone: well above terminal with clear spacing
-        let terminalTop = terminalH + 110/2 + 10  // Terminal bg top edge
-        let cardOffset: CGFloat = 130  // From AssemblyZone.swift
-        let clearMargin: CGFloat = 30  // Extra margin to prevent overlap
-        return terminalTop + clearMargin + cardOffset + partCardHeight/2
+        // Position assembly zone: must be well above git file system UI in left panel
+        // Left panel commit button top is at y=319
+        // Cards are at y=-95 relative to center, extend ±62.5 (total height 125)
+        // Need center at 490 so card bottom (490-95-62.5=332.5) clears commit button top (319) with 13px gap
+        let minClearY: CGFloat = 490  // Ensures minimum clearance for visual clarity
+        return minClearY
     }
     private var fileSystemY: CGFloat { size.height - topBarH - 90 }
     private var robotAreaY: CGFloat { (size.height - topBarH + terminalH) / 2 }
