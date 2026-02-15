@@ -102,17 +102,18 @@ class GameScene: SKScene {
         size.height - topBarH - minMargin - missionHeaderHeight/2
     }
     private var robotCenterY: CGFloat {
-        // Position robot: below mission header with margin, considering head slot
-        let headerBottom = missionHeaderY - missionHeaderHeight/2
+        // Center robot in available space (no mission header in center panel)
+        let availableHeight = size.height - topBarH - terminalH - 110  // 110 for terminal bg
+        let robotTop = size.height - topBarH - 30  // Start 30px below top bar
         let robotHeadOffset: CGFloat = 100  // From RobotNode.swift
-        return headerBottom - minMargin - robotHeadOffset - robotSlotSize/2
+        return robotTop - robotHeadOffset
     }
     private var assemblyZoneCenterY: CGFloat {
-        // Position assembly zone: above terminal with margin, considering card height
-        let terminalY = terminalH/2 + 10  // Actual terminal center position
-        let terminalTop = terminalY + 110/2  // Terminal bg height is 110
+        // Position assembly zone: well above terminal with clear spacing
+        let terminalTop = terminalH + 110/2 + 10  // Terminal bg top edge
         let cardOffset: CGFloat = 130  // From AssemblyZone.swift
-        return terminalTop + minMargin + cardOffset + partCardHeight/2
+        let clearMargin: CGFloat = 30  // Extra margin to prevent overlap
+        return terminalTop + clearMargin + cardOffset + partCardHeight/2
     }
     private var fileSystemY: CGFloat { size.height - topBarH - 90 }
     private var robotAreaY: CGFloat { (size.height - topBarH + terminalH) / 2 }
@@ -601,46 +602,9 @@ class GameScene: SKScene {
         updateProgress()
         updateBranchBadge(phase.branchContext)
         
-        // 통합된 미션 헤더 (목표 + 지침) - 로봇 패널 상단에 배치
+        // Mission goal moved to left panel (in File System UI)
+        // Center panel now has more space for robot and parts
         childNode(withName: "missionHeader")?.removeFromParent()
-        
-        let headerGroup = SKNode()
-        headerGroup.name = "missionHeader"
-        headerGroup.zPosition = 15  // Higher z-position to avoid overlap
-        
-        // 목표 추출
-        let goalText = getGoalText(for: phase)
-        let headerStartX = gitPanelWidth + padding
-        
-        // 배경
-        let headerBg = SKShapeNode(rectOf: CGSize(width: robotPanelWidth - padding * 2, height: 55), cornerRadius: 10)
-        headerBg.fillColor = NSColor(red: 0.07, green: 0.1, blue: 0.15, alpha: 0.95)
-        headerBg.strokeColor = C.yellow.withAlphaComponent(0.4)
-        headerBg.lineWidth = 1.5
-        headerBg.position = CGPoint(x: robotPanelCenterX, y: missionHeaderY)
-        headerGroup.addChild(headerBg)
-        
-        // 목표 아이콘 + 텍스트
-        let goalIcon = makeLabel("🎯", size: 17)  // Increased
-        goalIcon.position = CGPoint(x: headerStartX + 15, y: missionHeaderY + 10)
-        headerGroup.addChild(goalIcon)
-
-        let goalLabel = makeLeftLabel(goalText, size: 15, color: C.yellow, bold: true)  // Increased
-        goalLabel.position = CGPoint(x: headerStartX + 35, y: missionHeaderY + 10)
-        headerGroup.addChild(goalLabel)
-
-        // 지침 아이콘 + 텍스트
-        let instructIcon = makeLabel("📋", size: 15)  // Increased
-        instructIcon.position = CGPoint(x: headerStartX + 15, y: missionHeaderY - 12)
-        headerGroup.addChild(instructIcon)
-
-        let instructLabel = makeLeftLabel(phase.instruction, size: 14, color: C.text)  // Increased
-        instructLabel.preferredMaxLayoutWidth = robotPanelWidth - padding * 2 - 50
-        instructLabel.numberOfLines = 1
-        instructLabel.position = CGPoint(x: headerStartX + 35, y: missionHeaderY - 12)
-        headerGroup.addChild(instructLabel)
-        
-        addChild(headerGroup)
         
         // Show assembly action
         actionDone = false
@@ -1197,11 +1161,43 @@ class GameScene: SKScene {
 
         let panelWidth = gitPanelWidth
         let centerX = gitPanelCenterX
-        let startY = fileSystemY
+        var startY = fileSystemY
         let leftX: CGFloat = padding + 8
         let sectionHeight: CGFloat = 26
         let fileRowHeight: CGFloat = 28
         let sectionSpacing: CGFloat = 20
+
+        // Mission Goal (moved from center panel)
+        if phaseIndex < mission.phases.count {
+            let phase = mission.phases[phaseIndex]
+            let goalText = getGoalText(for: phase)
+
+            let goalBg = SKShapeNode(rectOf: CGSize(width: panelWidth - padding * 2, height: 50), cornerRadius: 8)
+            goalBg.fillColor = C.yellow.withAlphaComponent(0.1)
+            goalBg.strokeColor = C.yellow.withAlphaComponent(0.3)
+            goalBg.lineWidth = 1.5
+            goalBg.position = CGPoint(x: centerX, y: startY)
+            group.addChild(goalBg)
+
+            let goalIcon = makeLabel("🎯", size: 16)
+            goalIcon.position = CGPoint(x: leftX + 10, y: startY + 8)
+            goalIcon.horizontalAlignmentMode = .left
+            group.addChild(goalIcon)
+
+            let goalLabel = makeLeftLabel(goalText, size: 13, color: C.yellow, bold: true)
+            goalLabel.position = CGPoint(x: leftX + 30, y: startY + 8)
+            goalLabel.preferredMaxLayoutWidth = panelWidth - padding * 2 - 40
+            goalLabel.numberOfLines = 1
+            group.addChild(goalLabel)
+
+            let instructLabel = makeLeftLabel(phase.instruction, size: 11, color: C.text)
+            instructLabel.position = CGPoint(x: leftX + 10, y: startY - 12)
+            instructLabel.preferredMaxLayoutWidth = panelWidth - padding * 2 - 20
+            instructLabel.numberOfLines = 1
+            group.addChild(instructLabel)
+
+            startY -= 70  // Move down for next section
+        }
 
         // Working Directory Section
         let workingBg = SKShapeNode(rectOf: CGSize(width: panelWidth - padding * 2, height: sectionHeight), cornerRadius: 6)
