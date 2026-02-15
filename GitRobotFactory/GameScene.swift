@@ -1167,36 +1167,40 @@ class GameScene: SKScene {
         let fileRowHeight: CGFloat = 28
         let sectionSpacing: CGFloat = 20
 
-        // Mission Goal (moved from center panel)
+        // Mission Goal at the top (moved from center panel)
         if phaseIndex < mission.phases.count {
             let phase = mission.phases[phaseIndex]
             let goalText = getGoalText(for: phase)
+
+            // Position at very top of left panel
+            let goalY = size.height - topBarH - 35
 
             let goalBg = SKShapeNode(rectOf: CGSize(width: panelWidth - padding * 2, height: 50), cornerRadius: 8)
             goalBg.fillColor = C.yellow.withAlphaComponent(0.1)
             goalBg.strokeColor = C.yellow.withAlphaComponent(0.3)
             goalBg.lineWidth = 1.5
-            goalBg.position = CGPoint(x: centerX, y: startY)
+            goalBg.position = CGPoint(x: centerX, y: goalY)
             group.addChild(goalBg)
 
             let goalIcon = makeLabel("🎯", size: 16)
-            goalIcon.position = CGPoint(x: leftX + 10, y: startY + 8)
+            goalIcon.position = CGPoint(x: leftX + 10, y: goalY + 8)
             goalIcon.horizontalAlignmentMode = .left
             group.addChild(goalIcon)
 
             let goalLabel = makeLeftLabel(goalText, size: 13, color: C.yellow, bold: true)
-            goalLabel.position = CGPoint(x: leftX + 30, y: startY + 8)
+            goalLabel.position = CGPoint(x: leftX + 30, y: goalY + 8)
             goalLabel.preferredMaxLayoutWidth = panelWidth - padding * 2 - 40
             goalLabel.numberOfLines = 1
             group.addChild(goalLabel)
 
             let instructLabel = makeLeftLabel(phase.instruction, size: 11, color: C.text)
-            instructLabel.position = CGPoint(x: leftX + 10, y: startY - 12)
+            instructLabel.position = CGPoint(x: leftX + 10, y: goalY - 12)
             instructLabel.preferredMaxLayoutWidth = panelWidth - padding * 2 - 20
             instructLabel.numberOfLines = 1
             group.addChild(instructLabel)
 
-            startY -= 70  // Move down for next section
+            // Adjust startY to be below the goal section
+            startY = goalY - 40
         }
 
         // Working Directory Section
