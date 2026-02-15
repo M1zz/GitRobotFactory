@@ -39,6 +39,8 @@ class GameScene: SKScene {
         let name: String
         let partSlot: PartSlot
         var status: FileStatus
+        var content: [String] = []  // File content lines
+        var previousContent: [String] = []  // For diff comparison
     }
 
     private var files: [GitFile] = []
@@ -126,7 +128,7 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         backgroundColor = C.bg
         mission = GameData.missions.first(where: { $0.id == missionId }) ?? GameData.missions[0]
-        
+
         setupTopBar()
         setupGitToolbar()
         setupProgressBar()
@@ -134,6 +136,7 @@ class GameScene: SKScene {
         setupRightPanel()
         setupTerminal()
         setupFileSystem()
+        initializeFileContents()
 
         showCurrentPhase()
     }
@@ -1313,11 +1316,14 @@ class GameScene: SKScene {
         let pWidth = panelWidth ?? gitPanelWidth
         let centerX = pWidth / 2
 
-        // Row background
+        // Row background (make it clickable)
         let rowBg = SKShapeNode(rectOf: CGSize(width: pWidth - padding * 2 - 16, height: 24), cornerRadius: 5)
         rowBg.fillColor = NSColor(white: 0.04, alpha: 0.5)
         rowBg.strokeColor = .clear
         rowBg.position = CGPoint(x: centerX, y: y)
+        rowBg.name = "fileRow_\(file.name)"
+        rowBg.userData = NSMutableDictionary()
+        rowBg.userData?["fileName"] = file.name
         row.addChild(rowBg)
 
         // Status indicator with badge
@@ -1355,6 +1361,13 @@ class GameScene: SKScene {
         fileName.position = CGPoint(x: x + 44, y: y)
         row.addChild(fileName)
 
+        // Click hint (show if file has been modified)
+        if file.status == .modified || file.status == .staged {
+            let hintIcon = makeLabel("📝", size: 10)
+            hintIcon.position = CGPoint(x: pWidth - padding - 65, y: y)
+            row.addChild(hintIcon)
+        }
+
         // Stage/Unstage button
         let btnText = isStaged ? "↓" : "↑"
         let btnColor = isStaged ? C.orange : C.green
@@ -1387,6 +1400,8 @@ class GameScene: SKScene {
         for index in files.indices {
             if files[index].status == .staged {
                 files[index].status = .committed
+                // Clear previous content after commit (changes are now baseline)
+                files[index].previousContent = files[index].content
             }
         }
 
@@ -1651,8 +1666,14 @@ class GameScene: SKScene {
     private func handlePartSelected(_ part: RobotPart) {
         robotNode.installPart(part)
 
-        // Update file status
+        // Update file status and content
         if let index = files.firstIndex(where: { $0.partSlot == part.slot }) {
+            // Save previous content for diff
+            files[index].previousContent = files[index].content
+
+            // Update content with accumulated parts
+            let allParts = robotNode.getInstalledParts(for: part.slot)
+            files[index].content = generateFileContent(for: part.slot, parts: allParts)
             files[index].status = .modified
         }
 
@@ -1661,6 +1682,24 @@ class GameScene: SKScene {
         showFileSystemUI()  // Update file system UI
         // Enable stash button when there are changes
         updateGitButton("stash", enabled: true)
+    }
+
+    private func generateFileContent(for slot: PartSlot, parts: [RobotPart]) -> [String] {
+        var lines: [String] = []
+        lines.append("// \(slot.label) 파일")
+        lines.append("")
+
+        for (index, part) in parts.enumerated() {
+            lines.append("// 부품 \(index + 1): \(part.name)")
+            lines.append("struct \(part.id.capitalized)Part {")
+            lines.append("    let name = \"\(part.name)\"")
+            lines.append("    let emoji = \"\(part.emoji)\"")
+            lines.append("    let slot = .\(slot.rawValue)")
+            lines.append("}")
+            lines.append("")
+        }
+
+        return lines
     }
     
     private func handleWorkstationOpened(_ name: String) {
@@ -1786,6 +1825,13 @@ class GameScene: SKScene {
                 toggleChecklist()
                 return
             }
+            // Check file row clicks (for diff view)
+            if let fileRow = node as? SKShapeNode, let name = fileRow.name, name.hasPrefix("fileRow_") {
+                if let fileName = fileRow.userData?["fileName"] as? String {
+                    showFileDiff(fileName: fileName)
+                    return
+                }
+            }
             // Check stage/unstage buttons
             if let stageBtn = node as? SKShapeNode, let name = stageBtn.name, name.hasPrefix("stageBtn_") {
                 if let fileName = stageBtn.userData?["fileName"] as? String,
@@ -1838,6 +1884,101 @@ class GameScene: SKScene {
         }
     }
 
+    private func showFileDiff(fileName: String) {
+        guard let file = files.first(where: { $0.name == fileName }) else { return }
+
+        // Create diff popup
+        let popup = SKNode()
+        popup.name = "diffPopup"
+        popup.zPosition = 200
+
+        // Semi-transparent overlay
+        let overlay = SKShapeNode(rectOf: size)
+        overlay.fillColor = NSColor(white: 0, alpha: 0.7)
+        overlay.strokeColor = .clear
+        overlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        popup.addChild(overlay)
+
+        // Diff panel
+        let panelWidth: CGFloat = 600
+        let panelHeight: CGFloat = 400
+        let panel = SKShapeNode(rectOf: CGSize(width: panelWidth, height: panelHeight), cornerRadius: 12)
+        panel.fillColor = NSColor(red: 0.08, green: 0.1, blue: 0.14, alpha: 1)
+        panel.strokeColor = C.blue
+        panel.lineWidth = 2
+        panel.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        popup.addChild(panel)
+
+        // Title
+        let title = makeLabel("📄 \(fileName) - 변경사항", size: 13, color: C.blue, bold: true, mono: true)
+        title.position = CGPoint(x: size.width / 2, y: size.height / 2 + panelHeight / 2 - 25)
+        popup.addChild(title)
+
+        // Diff content
+        let contentStartY = size.height / 2 + panelHeight / 2 - 60
+        var yOffset = contentStartY
+
+        // Generate diff lines
+        let diffLines = generateDiffLines(previousContent: file.previousContent, currentContent: file.content)
+
+        for diffLine in diffLines.prefix(15) {  // Show first 15 lines
+            let lineLabel = makeLabel(diffLine.text, size: 10, color: diffLine.color, mono: true)
+            lineLabel.horizontalAlignmentMode = .left
+            lineLabel.position = CGPoint(x: size.width / 2 - panelWidth / 2 + 20, y: yOffset)
+            popup.addChild(lineLabel)
+            yOffset -= 16
+        }
+
+        // If no changes
+        if diffLines.isEmpty {
+            let noChanges = makeLabel("변경사항 없음", size: 11, color: C.textDim)
+            noChanges.position = CGPoint(x: size.width / 2, y: size.height / 2)
+            popup.addChild(noChanges)
+        }
+
+        // Close button
+        let closeBtn = ButtonNode(text: "✕ 닫기", width: 100, height: 36, color: NSColor(white: 0.3, alpha: 1), fontSize: 12)
+        closeBtn.position = CGPoint(x: size.width / 2, y: size.height / 2 - panelHeight / 2 + 30)
+        closeBtn.action = { [weak self] in
+            popup.removeFromParent()
+        }
+        popup.addChild(closeBtn)
+
+        addChild(popup)
+    }
+
+    private struct DiffLine {
+        let text: String
+        let color: NSColor
+    }
+
+    private func generateDiffLines(previousContent: [String], currentContent: [String]) -> [DiffLine] {
+        var lines: [DiffLine] = []
+
+        // Simple diff: show removed lines (red) and added lines (green)
+        let prevSet = Set(previousContent)
+        let currSet = Set(currentContent)
+
+        // Removed lines
+        for line in previousContent {
+            if !currSet.contains(line) {
+                lines.append(DiffLine(text: "- \(line)", color: NSColor.red.withAlphaComponent(0.8)))
+            }
+        }
+
+        // Added lines
+        for line in currentContent {
+            if !prevSet.contains(line) {
+                lines.append(DiffLine(text: "+ \(line)", color: NSColor.green.withAlphaComponent(0.8)))
+            } else {
+                // Unchanged lines (show for context)
+                lines.append(DiffLine(text: "  \(line)", color: C.textDim))
+            }
+        }
+
+        return lines
+    }
+
     private func handleStageToggle(fileName: String, isStaged: Bool) {
         guard let index = files.firstIndex(where: { $0.name == fileName }) else { return }
 
@@ -1864,6 +2005,16 @@ class GameScene: SKScene {
         }
 
         showFileSystemUI()
+    }
+
+    // Initialize file contents
+    private func initializeFileContents() {
+        for index in files.indices {
+            let slot = files[index].partSlot
+            let parts = robotNode.getInstalledParts(for: slot)
+            files[index].content = generateFileContent(for: slot, parts: parts)
+            files[index].previousContent = files[index].content
+        }
     }
 
     private func showCommitMessageInput() {

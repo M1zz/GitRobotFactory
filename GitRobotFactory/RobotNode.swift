@@ -2,7 +2,7 @@ import SpriteKit
 
 class RobotNode: SKNode {
     internal var slots: [PartSlot: SKNode] = [:]
-    private var installedParts: [PartSlot: RobotPart] = [:]
+    private var installedParts: [PartSlot: [RobotPart]] = [:]  // Changed to array to accumulate parts
     
     override init() {
         super.init()
@@ -60,9 +60,14 @@ class RobotNode: SKNode {
     }
     
     func installPart(_ part: RobotPart) {
-        installedParts[part.slot] = part
+        // Accumulate parts instead of replacing
+        if installedParts[part.slot] == nil {
+            installedParts[part.slot] = []
+        }
+        installedParts[part.slot]?.append(part)
+
         guard let slotNode = slots[part.slot] else { return }
-        
+
         // Update visual
         if let bg = slotNode.childNode(withName: "slotBg") as? SKShapeNode {
             bg.fillColor = C.green.withAlphaComponent(0.1)
@@ -71,18 +76,64 @@ class RobotNode: SKNode {
         if let dash = slotNode.childNode(withName: "dash") as? SKShapeNode {
             dash.isHidden = true
         }
-        if let label = slotNode.childNode(withName: "label") as? SKLabelNode {
-            label.text = part.emoji
-            label.fontSize = 24
-            label.fontColor = .white
-            
-            // Bounce animation
-            label.setScale(0.3)
-            label.run(.sequence([
-                .scale(to: 1.2, duration: 0.15),
-                .scale(to: 1.0, duration: 0.1)
-            ]))
+
+        // Remove old part labels
+        slotNode.children.filter { $0.name?.hasPrefix("partEmoji_") ?? false }.forEach { $0.removeFromParent() }
+
+        // Display all accumulated parts
+        if let parts = installedParts[part.slot] {
+            if parts.count == 1 {
+                // Single part: show normally
+                if let label = slotNode.childNode(withName: "label") as? SKLabelNode {
+                    label.text = parts[0].emoji
+                    label.fontSize = 24
+                    label.fontColor = .white
+                    label.setScale(0.3)
+                    label.run(.sequence([
+                        .scale(to: 1.2, duration: 0.15),
+                        .scale(to: 1.0, duration: 0.1)
+                    ]))
+                }
+            } else {
+                // Multiple parts: stack them
+                if let label = slotNode.childNode(withName: "label") as? SKLabelNode {
+                    label.text = ""  // Hide original label
+                }
+
+                // Show parts as a horizontal stack
+                let spacing: CGFloat = 16
+                let totalWidth = CGFloat(parts.count - 1) * spacing
+                let startX = -totalWidth / 2
+
+                for (index, p) in parts.enumerated() {
+                    let emoji = SKLabelNode(text: p.emoji)
+                    emoji.fontSize = 20
+                    emoji.fontColor = .white
+                    emoji.verticalAlignmentMode = .center
+                    emoji.position = CGPoint(x: startX + CGFloat(index) * spacing, y: 0)
+                    emoji.name = "partEmoji_\(index)"
+                    emoji.zPosition = CGFloat(index)
+
+                    // Add subtle shadow/glow for depth
+                    emoji.fontColor = NSColor.white.withAlphaComponent(0.9 + CGFloat(index) * 0.05)
+
+                    slotNode.addChild(emoji)
+
+                    // Animate only the newest part
+                    if index == parts.count - 1 {
+                        emoji.setScale(0.3)
+                        emoji.run(.sequence([
+                            .scale(to: 1.3, duration: 0.15),
+                            .scale(to: 1.0, duration: 0.1)
+                        ]))
+                    }
+                }
+            }
         }
+    }
+
+    func getInstalledParts(for slot: PartSlot) -> [RobotPart] {
+        return installedParts[slot] ?? []
     }
     
     func reset() {
