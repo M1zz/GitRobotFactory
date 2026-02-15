@@ -34,12 +34,12 @@ class ButtonNode: SKNode {
     private var isHovered = false
     private let baseColor: NSColor
     
-    init(text: String, width: CGFloat = 200, height: CGFloat = 44, color: NSColor = C.green, fontSize: CGFloat = 15) {
+    init(text: String, width: CGFloat = 200, height: CGFloat = 44, color: NSColor = C.green, fontSize: CGFloat = 17) {  // Default increased
         self.baseColor = color
         bg = SKShapeNode(rectOf: CGSize(width: width, height: height), cornerRadius: 10)
         bg.fillColor = color
         bg.strokeColor = .clear
-        
+
         label = SKLabelNode(text: text)
         label.fontName = "Menlo-Bold"
         label.fontSize = fontSize
@@ -107,12 +107,12 @@ func makeLeftLabel(_ text: String, size: CGFloat = 14, color: NSColor = C.text, 
 }
 
 // MARK: - Badge Node
-func makeBadge(_ text: String, color: NSColor, fontSize: CGFloat = 10) -> SKNode {
+func makeBadge(_ text: String, color: NSColor, fontSize: CGFloat = 12) -> SKNode {  // Default increased
     let container = SKNode()
     let label = makeLabel(text, size: fontSize, color: .white, bold: true, mono: true)
-    
+
     let w = CGFloat(text.count) * fontSize * 0.7 + 16
-    let bg = SKShapeNode(rectOf: CGSize(width: w, height: 20), cornerRadius: 10)
+    let bg = SKShapeNode(rectOf: CGSize(width: w, height: 24), cornerRadius: 10)  // Increased height
     bg.fillColor = color
     bg.strokeColor = .clear
     
@@ -134,8 +134,8 @@ class PartCardNode: SKNode {
     let part: RobotPart
     let bg: SKShapeNode
     var onSelect: ((RobotPart) -> Void)?
-    
-    init(part: RobotPart, cardSize: CGSize = CGSize(width: 150, height: 160)) {  // Increased from 120x130
+
+    init(part: RobotPart, cardSize: CGSize = CGSize(width: 140, height: 155)) {  // Reduced slightly to fit in center panel
         self.part = part
         bg = SKShapeNode(rectOf: cardSize, cornerRadius: 12)
         bg.fillColor = NSColor(white: 0.08, alpha: 1)
@@ -148,21 +148,21 @@ class PartCardNode: SKNode {
 
         addChild(bg)
 
-        let emoji = makeEmoji(part.emoji, size: 48)  // Increased from 36
-        emoji.position = CGPoint(x: 0, y: 25)
+        let emoji = makeEmoji(part.emoji, size: 50)  // Increased
+        emoji.position = CGPoint(x: 0, y: 22)
         addChild(emoji)
 
-        let nameLabel = makeLabel(part.name, size: 14, color: C.text, bold: true)  // Increased from 12
+        let nameLabel = makeLabel(part.name, size: 16, color: C.text, bold: true)  // Increased
         nameLabel.position = CGPoint(x: 0, y: -15)
         addChild(nameLabel)
 
-        let slotLabel = makeLabel(part.slot.label, size: 11, color: C.textDim)  // Increased from 10
+        let slotLabel = makeLabel(part.slot.label, size: 13, color: C.textDim)  // Increased
         slotLabel.position = CGPoint(x: 0, y: -35)
         addChild(slotLabel)
-        
+
         if let port = part.portId {
-            let portLabel = makeLabel("포트: \(port)", size: 9, color: C.orange, bold: true, mono: true)
-            portLabel.position = CGPoint(x: 0, y: -48)
+            let portLabel = makeLabel("포트: \(port)", size: 11, color: C.orange, bold: true, mono: true)
+            portLabel.position = CGPoint(x: 0, y: -50)
             addChild(portLabel)
         }
     }
@@ -208,7 +208,7 @@ class MergeCardNode: SKNode {
         toBadge.position = CGPoint(x: 80, y: 0)
         addChild(toBadge)
         
-        let hint = makeLabel("클릭하여 머지", size: 10, color: C.textFaint)
+        let hint = makeLabel("클릭하여 머지", size: 13, color: C.textFaint)
         hint.position = CGPoint(x: 0, y: -30)
         addChild(hint)
     }

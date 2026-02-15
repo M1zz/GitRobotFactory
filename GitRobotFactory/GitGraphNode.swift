@@ -138,7 +138,7 @@ class GitGraphNode: SKNode {
             // Branch badge (top)
             let badgeLabel = SKLabelNode(text: entry.branch)
             badgeLabel.fontName = "Menlo"
-            badgeLabel.fontSize = 8
+            badgeLabel.fontSize = 10  // Increased from 8
             badgeLabel.fontColor = C.branchColor(entry.branch)
             badgeLabel.horizontalAlignmentMode = .left
             badgeLabel.verticalAlignmentMode = .center
@@ -150,7 +150,7 @@ class GitGraphNode: SKNode {
             let metaText = "\(entry.commitId) • \(timeStr)"
             let metaLabel = SKLabelNode(text: metaText)
             metaLabel.fontName = "Menlo"
-            metaLabel.fontSize = 6
+            metaLabel.fontSize = 8  // Increased from 6
             metaLabel.fontColor = NSColor(white: 0.45, alpha: 1)
             metaLabel.horizontalAlignmentMode = .left
             metaLabel.verticalAlignmentMode = .center
@@ -160,7 +160,7 @@ class GitGraphNode: SKNode {
             // Commit message (bottom)
             let messageLabel = SKLabelNode(text: entry.label)
             messageLabel.fontName = "Menlo"
-            messageLabel.fontSize = 7
+            messageLabel.fontSize = 9  // Increased from 7
             messageLabel.fontColor = NSColor(white: 0.6, alpha: 1)
             messageLabel.horizontalAlignmentMode = .left
             messageLabel.verticalAlignmentMode = .center
@@ -173,27 +173,27 @@ class GitGraphNode: SKNode {
             if entry.type == "merge" {
                 let tag = SKLabelNode(text: "◀")
                 tag.fontName = "Menlo-Bold"
-                tag.fontSize = 9
+                tag.fontSize = 11  // Increased from 9
                 tag.fontColor = C.green
                 tag.verticalAlignmentMode = .center
                 tag.position = CGPoint(x: -12, y: 0)
                 row.addChild(tag)
             } else if entry.type == "tag" {
                 let tag = SKLabelNode(text: "🏷️")
-                tag.fontSize = 10
+                tag.fontSize = 12  // Increased from 10
                 tag.verticalAlignmentMode = .center
                 tag.position = CGPoint(x: -14, y: 0)
                 row.addChild(tag)
             } else if entry.type == "conflict" {
                 let tag = SKLabelNode(text: "⚡")
-                tag.fontSize = 10
+                tag.fontSize = 12  // Increased from 10
                 tag.verticalAlignmentMode = .center
                 tag.position = CGPoint(x: -14, y: 0)
                 row.addChild(tag)
             } else if entry.type == "branch" {
                 let tag = SKLabelNode(text: "▶")
                 tag.fontName = "Menlo-Bold"
-                tag.fontSize = 9
+                tag.fontSize = 11  // Increased from 9
                 tag.fontColor = C.blue
                 tag.verticalAlignmentMode = .center
                 tag.position = CGPoint(x: -12, y: 0)

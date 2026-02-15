@@ -172,11 +172,11 @@ class GameScene: SKScene {
         addChild(back)
         
         // Mission title
-        let title = makeLabel("Mission \(mission.id): \(mission.title)", size: 14, color: C.text, bold: true)
+        let title = makeLabel("Mission \(mission.id): \(mission.title)", size: 17, color: C.text, bold: true)  // Increased
         title.position = CGPoint(x: 240, y: size.height - topBarH/2)
         title.zPosition = 11
         addChild(title)
-        
+
         // Branch badge
         branchBadge = makeBadge(currentBranch, color: C.branchColor(currentBranch))
         branchBadge.position = CGPoint(x: size.width - 620, y: size.height - topBarH/2)
@@ -184,13 +184,13 @@ class GameScene: SKScene {
         addChild(branchBadge)
 
         // Phase counter
-        phaseCounter = makeLabel("Phase 1/\(mission.phases.count)", size: 11, color: C.textDim, mono: true)
+        phaseCounter = makeLabel("Phase 1/\(mission.phases.count)", size: 13, color: C.textDim, mono: true)  // Increased
         phaseCounter.position = CGPoint(x: size.width - 680, y: size.height - topBarH/2)
         phaseCounter.zPosition = 11
         addChild(phaseCounter)
 
         // Stars
-        let stars = makeLabel("⭐\(GameData.shared.totalStars)", size: 12, color: C.yellow)
+        let stars = makeLabel("⭐\(GameData.shared.totalStars)", size: 14, color: C.yellow)  // Increased
         stars.position = CGPoint(x: size.width - 750, y: size.height - topBarH/2)
         stars.zPosition = 11
         addChild(stars)
@@ -227,13 +227,13 @@ class GameScene: SKScene {
             addChild(btn)
 
             // Icon
-            let icon = makeLabel(button.icon, size: 14, color: button.enabled ? C.textDim : NSColor(white: 0.2, alpha: 1))
+            let icon = makeLabel(button.icon, size: 16, color: button.enabled ? C.textDim : NSColor(white: 0.2, alpha: 1))  // Increased
             icon.position = CGPoint(x: x, y: toolbarY + 6)
             icon.zPosition = 13
             addChild(icon)
 
             // Label
-            let label = makeLabel(button.text, size: 8, color: button.enabled ? C.textDim : NSColor(white: 0.2, alpha: 1), mono: true)
+            let label = makeLabel(button.text, size: 10, color: button.enabled ? C.textDim : NSColor(white: 0.2, alpha: 1), mono: true)  // Increased
             label.position = CGPoint(x: x, y: toolbarY - 7)
             label.zPosition = 13
             addChild(label)
@@ -346,7 +346,7 @@ class GameScene: SKScene {
         bg.position = CGPoint(x: size.width / 2, y: size.height - 120)
         notification.addChild(bg)
 
-        let label = makeLabel(message, size: 12, color: C.text, bold: true)
+        let label = makeLabel(message, size: 15, color: C.text, bold: true)  // Increased
         label.position = bg.position
         notification.addChild(label)
 
@@ -381,12 +381,12 @@ class GameScene: SKScene {
         group.addChild(dialog)
 
         // Title
-        let title = makeLabel("🎋 새 브랜치 생성", size: 16, color: C.blue, bold: true)
+        let title = makeLabel("🎋 새 브랜치 생성", size: 19, color: C.blue, bold: true)  // Increased
         title.position = CGPoint(x: size.width / 2, y: size.height / 2 + 90)
         group.addChild(title)
 
         // Current branch info
-        let currentInfo = makeLabel("현재 브랜치: \(currentBranch)", size: 12, color: C.textDim)
+        let currentInfo = makeLabel("현재 브랜치: \(currentBranch)", size: 15, color: C.textDim)  // Increased
         currentInfo.position = CGPoint(x: size.width / 2, y: size.height / 2 + 60)
         group.addChild(currentInfo)
 
@@ -395,7 +395,7 @@ class GameScene: SKScene {
         let startY = size.height / 2 + 20
 
         for (index, branchName) in branchOptions.enumerated() {
-            let btn = ButtonNode(text: branchName, width: 300, height: 40, color: C.purple, fontSize: 12)
+            let btn = ButtonNode(text: branchName, width: 300, height: 40, color: C.purple, fontSize: 15)  // Increased
             btn.position = CGPoint(x: size.width / 2, y: startY - CGFloat(index) * 50)
             btn.action = { [weak self] in
                 self?.createBranch(branchName)
@@ -405,7 +405,7 @@ class GameScene: SKScene {
         }
 
         // Cancel button
-        let cancelBtn = ButtonNode(text: "취소", width: 120, height: 36, color: NSColor(white: 0.3, alpha: 1), fontSize: 12)
+        let cancelBtn = ButtonNode(text: "취소", width: 120, height: 36, color: NSColor(white: 0.3, alpha: 1), fontSize: 15)  // Increased
         cancelBtn.position = CGPoint(x: size.width / 2, y: size.height / 2 - 100)
         cancelBtn.action = { group.removeFromParent() }
         group.addChild(cancelBtn)
@@ -475,7 +475,7 @@ class GameScene: SKScene {
         addChild(gitPanelBg)
         
         // 섹션 타이틀
-        let gitTitle = makeLabel("📂 GIT STATUS", size: 12, color: C.blue, bold: true, mono: true)
+        let gitTitle = makeLabel("📂 GIT STATUS", size: 15, color: C.blue, bold: true, mono: true)  // Increased
         gitTitle.position = CGPoint(x: gitPanelCenterX, y: size.height - topBarH - 25)
         addChild(gitTitle)
 
@@ -504,7 +504,7 @@ class GameScene: SKScene {
         addChild(robotPanelBg)
         
         // 섹션 타이틀
-        let robotTitle = makeLabel("🤖 로봇 조립", size: 12, color: C.green, bold: true, mono: true)
+        let robotTitle = makeLabel("🤖 로봇 조립", size: 15, color: C.green, bold: true, mono: true)  // Increased
         robotTitle.position = CGPoint(x: robotPanelCenterX, y: size.height - topBarH - 25)
         addChild(robotTitle)
         
@@ -542,7 +542,7 @@ class GameScene: SKScene {
         addChild(graphPanelBg)
         
         // Git Graph 타이틀
-        let graphTitle = makeLabel("🌳 GIT GRAPH", size: 12, color: C.purple, bold: true, mono: true)
+        let graphTitle = makeLabel("🌳 GIT GRAPH", size: 15, color: C.purple, bold: true, mono: true)  // Increased
         graphTitle.position = CGPoint(x: graphPanelCenterX, y: size.height - topBarH - 25)
         addChild(graphTitle)
 
@@ -594,20 +594,20 @@ class GameScene: SKScene {
         headerGroup.addChild(headerBg)
         
         // 목표 아이콘 + 텍스트
-        let goalIcon = makeLabel("🎯", size: 14)
+        let goalIcon = makeLabel("🎯", size: 17)  // Increased
         goalIcon.position = CGPoint(x: headerStartX + 15, y: missionHeaderY + 10)
         headerGroup.addChild(goalIcon)
-        
-        let goalLabel = makeLeftLabel(goalText, size: 12, color: C.yellow, bold: true)
+
+        let goalLabel = makeLeftLabel(goalText, size: 15, color: C.yellow, bold: true)  // Increased
         goalLabel.position = CGPoint(x: headerStartX + 35, y: missionHeaderY + 10)
         headerGroup.addChild(goalLabel)
-        
+
         // 지침 아이콘 + 텍스트
-        let instructIcon = makeLabel("📋", size: 12)
+        let instructIcon = makeLabel("📋", size: 15)  // Increased
         instructIcon.position = CGPoint(x: headerStartX + 15, y: missionHeaderY - 12)
         headerGroup.addChild(instructIcon)
-        
-        let instructLabel = makeLeftLabel(phase.instruction, size: 11, color: C.text)
+
+        let instructLabel = makeLeftLabel(phase.instruction, size: 14, color: C.text)  // Increased
         instructLabel.preferredMaxLayoutWidth = robotPanelWidth - padding * 2 - 50
         instructLabel.numberOfLines = 1
         instructLabel.position = CGPoint(x: headerStartX + 35, y: missionHeaderY - 12)
@@ -720,13 +720,13 @@ class GameScene: SKScene {
         bg.position = CGPoint(x: leftWidth/2, y: (size.height - topBarH + terminalH) / 2)
         group.addChild(bg)
         
-        let bulb = makeLabel("💡 Git 개념", size: 13, color: C.yellow, bold: true)
+        let bulb = makeLabel("💡 Git 개념", size: 16, color: C.yellow, bold: true)  // Increased
         bulb.position = CGPoint(x: leftWidth/2, y: bg.position.y + 65)
         group.addChild(bulb)
-        
+
         let exp = SKLabelNode(text: phase.explanation)
         exp.fontName = "Helvetica"
-        exp.fontSize = 12.5
+        exp.fontSize = 15  // Increased
         exp.fontColor = NSColor(white: 0.8, alpha: 1)
         exp.verticalAlignmentMode = .center
         exp.horizontalAlignmentMode = .center
@@ -734,21 +734,21 @@ class GameScene: SKScene {
         exp.numberOfLines = 0
         exp.position = CGPoint(x: leftWidth/2, y: bg.position.y + 25)
         group.addChild(exp)
-        
+
         // Git command
         let cmdBg = SKShapeNode(rectOf: CGSize(width: leftWidth - 80, height: 28), cornerRadius: 6)
         cmdBg.fillColor = NSColor(white: 0.04, alpha: 1)
         cmdBg.strokeColor = .clear
         cmdBg.position = CGPoint(x: leftWidth/2, y: bg.position.y - 20)
         group.addChild(cmdBg)
-        
+
         let cmdText = makeLabel(phase.gitCommand.components(separatedBy: "\n").first ?? phase.gitCommand,
-                                size: 11, color: C.green, bold: true, mono: true)
+                                size: 13, color: C.green, bold: true, mono: true)  // Increased
         cmdText.position = cmdBg.position
         group.addChild(cmdText)
-        
+
         // Continue button
-        let nextBtn = ButtonNode(text: "이해했어요! →", width: 160, height: 36, color: C.green, fontSize: 13)
+        let nextBtn = ButtonNode(text: "이해했어요! →", width: 160, height: 36, color: C.green, fontSize: 16)  // Increased
         nextBtn.position = CGPoint(x: leftWidth/2, y: bg.position.y - 65)
         nextBtn.zPosition = 21
         nextBtn.action = { [weak self] in self?.advancePhase() }
@@ -1014,7 +1014,7 @@ class GameScene: SKScene {
         box.addChild(label)
 
         // Close hint
-        let closeHint = makeLabel("💬 화면을 클릭하면 닫을 수 있어요", size: 9, color: NSColor(white: 0.6, alpha: 1))
+        let closeHint = makeLabel("💬 화면을 클릭하면 닫을 수 있어요", size: 12, color: NSColor(white: 0.6, alpha: 1))  // Increased
         closeHint.position = CGPoint(x: position.x, y: position.y - 30)
         box.addChild(closeHint)
 
@@ -1088,7 +1088,7 @@ class GameScene: SKScene {
         let toggleIcon = isChecklistVisible ? "▼" : "▶"
         let completedCount = completedTodos.count
         let totalCount = currentTodos.count
-        let toggleLabel = makeLabel("\(toggleIcon) 체크리스트 \(completedCount)/\(totalCount)", size: 10, color: C.purple, bold: true, mono: true)
+        let toggleLabel = makeLabel("\(toggleIcon) 체크리스트 \(completedCount)/\(totalCount)", size: 12, color: C.purple, bold: true, mono: true)  // Increased
         toggleBtn.addChild(toggleLabel)
 
         toggleBtn.position = CGPoint(x: 0, y: 0)
@@ -1104,7 +1104,7 @@ class GameScene: SKScene {
                 let todoText = getTodoText(for: todo)
                 let color = isCompleted ? C.green : C.text
 
-                let label = makeLabel("\(checkbox) \(index + 1). \(todoText)", size: 9, color: color, mono: true)
+                let label = makeLabel("\(checkbox) \(index + 1). \(todoText)", size: 11, color: color, mono: true)  // Increased
                 label.horizontalAlignmentMode = .left
                 label.position = CGPoint(x: leftX, y: yOffset)
                 group.addChild(label)
@@ -1183,7 +1183,7 @@ class GameScene: SKScene {
         workingBg.position = CGPoint(x: centerX, y: startY)
         group.addChild(workingBg)
 
-        let workingTitle = makeLabel("📂 Working Directory", size: 11, color: C.orange, bold: true, mono: true)
+        let workingTitle = makeLabel("📂 Working Directory", size: 14, color: C.orange, bold: true, mono: true)  // Increased
         workingTitle.position = CGPoint(x: centerX, y: startY)
         group.addChild(workingTitle)
 
@@ -1191,7 +1191,7 @@ class GameScene: SKScene {
         var yOffset = startY - 28
 
         if modifiedFiles.isEmpty {
-            let noChanges = makeLabel("✓ clean", size: 10, color: C.green)
+            let noChanges = makeLabel("✓ clean", size: 13, color: C.green)  // Increased
             noChanges.horizontalAlignmentMode = .left
             noChanges.position = CGPoint(x: leftX + 12, y: yOffset)
             group.addChild(noChanges)
@@ -1212,7 +1212,7 @@ class GameScene: SKScene {
         stagingBg.position = CGPoint(x: centerX, y: yOffset)
         group.addChild(stagingBg)
 
-        let stagingTitle = makeLabel("📦 Staging Area", size: 11, color: C.green, bold: true, mono: true)
+        let stagingTitle = makeLabel("📦 Staging Area", size: 14, color: C.green, bold: true, mono: true)  // Increased
         stagingTitle.position = CGPoint(x: centerX, y: yOffset)
         group.addChild(stagingTitle)
 
@@ -1220,7 +1220,7 @@ class GameScene: SKScene {
         yOffset -= 30
 
         if stagedFiles.isEmpty {
-            let noStaged = makeLabel("→ 없음", size: 10, color: C.textFaint)
+            let noStaged = makeLabel("→ 없음", size: 13, color: C.textFaint)  // Increased
             noStaged.horizontalAlignmentMode = .left
             noStaged.position = CGPoint(x: leftX + 12, y: yOffset)
             group.addChild(noStaged)
@@ -1241,7 +1241,7 @@ class GameScene: SKScene {
         commitBg.position = CGPoint(x: centerX, y: yOffset)
         group.addChild(commitBg)
 
-        let commitTitle = makeLabel("💾 Commit", size: 11, color: C.blue, bold: true, mono: true)
+        let commitTitle = makeLabel("💾 Commit", size: 14, color: C.blue, bold: true, mono: true)  // Increased
         commitTitle.position = CGPoint(x: centerX, y: yOffset)
         group.addChild(commitTitle)
 
@@ -1258,7 +1258,7 @@ class GameScene: SKScene {
 
         let msgPlaceholder = makeLabel(
             commitMessageText.isEmpty ? "메시지 입력..." : commitMessageText,
-            size: 11,
+            size: 13,  // Increased
             color: commitMessageText.isEmpty ? C.textFaint : C.text,
             mono: true
         )
@@ -1274,7 +1274,7 @@ class GameScene: SKScene {
             width: panelWidth - padding * 2 - 8,
             height: 40,
             color: stagedFiles.isEmpty ? NSColor(white: 0.15, alpha: 0.5) : C.green,
-            fontSize: 13
+            fontSize: 16  // Increased
         )
         commitBtn.position = CGPoint(x: centerX, y: yOffset - 20)
         commitBtn.name = "commitButton"
@@ -1352,19 +1352,19 @@ class GameScene: SKScene {
         statusBadge.position = CGPoint(x: x + 18, y: y)
         row.addChild(statusBadge)
 
-        let status = makeLabel(statusText, size: 9, color: statusColor, bold: true, mono: true)
+        let status = makeLabel(statusText, size: 11, color: statusColor, bold: true, mono: true)  // Increased
         status.position = CGPoint(x: x + 18, y: y)
         row.addChild(status)
 
         // File name
-        let fileName = makeLabel(file.name, size: 11, color: C.text, mono: true)
+        let fileName = makeLabel(file.name, size: 13, color: C.text, mono: true)  // Increased
         fileName.horizontalAlignmentMode = .left
         fileName.position = CGPoint(x: x + 44, y: y)
         row.addChild(fileName)
 
         // Click hint (show if file has been modified)
         if file.status == .modified || file.status == .staged {
-            let hintIcon = makeLabel("📝", size: 10)
+            let hintIcon = makeLabel("📝", size: 12)  // Increased
             hintIcon.position = CGPoint(x: pWidth - padding - 65, y: y)
             row.addChild(hintIcon)
         }
@@ -1386,7 +1386,7 @@ class GameScene: SKScene {
         btn.userData?["isStaged"] = isStaged
         row.addChild(btn)
 
-        let btnLabel = makeLabel(btnText, size: 13, color: btnColor, bold: true)
+        let btnLabel = makeLabel(btnText, size: 15, color: btnColor, bold: true)  // Increased
         btnLabel.position = CGPoint(x: pWidth - padding - 28, y: y)
         row.addChild(btnLabel)
 
@@ -1482,17 +1482,17 @@ class GameScene: SKScene {
             statusBg.position = CGPoint(x: cx, y: cy + 60)
             group.addChild(statusBg)
 
-            let statusLabel = makeLabel("📝 Working Directory: 변경사항 있음", size: 12, color: C.orange, bold: true)
+            let statusLabel = makeLabel("📝 Working Directory: 변경사항 있음", size: 15, color: C.orange, bold: true)  // Increased
             statusLabel.position = CGPoint(x: cx, y: cy + 60)
             group.addChild(statusLabel)
 
             // Stage button
-            let stageBtn = ButtonNode(text: "📦 Stage (git add)", width: 200, height: 44, color: C.blue, fontSize: 13)
+            let stageBtn = ButtonNode(text: "📦 Stage (git add)", width: 200, height: 44, color: C.blue, fontSize: 16)  // Increased
             stageBtn.position = CGPoint(x: cx, y: cy + 10)
             stageBtn.action = { [weak self] in self?.handleStage() }
             group.addChild(stageBtn)
 
-            let hint = makeLabel("💡 Stage하면 커밋 준비 완료", size: 10, color: C.textDim)
+            let hint = makeLabel("💡 Stage하면 커밋 준비 완료", size: 13, color: C.textDim)  // Increased
             hint.position = CGPoint(x: cx, y: cy - 20)
             group.addChild(hint)
 
@@ -1505,17 +1505,17 @@ class GameScene: SKScene {
             statusBg.position = CGPoint(x: cx, y: cy + 60)
             group.addChild(statusBg)
 
-            let statusLabel = makeLabel("✅ Staging Area: 커밋 준비 완료", size: 12, color: C.green, bold: true)
+            let statusLabel = makeLabel("✅ Staging Area: 커밋 준비 완료", size: 15, color: C.green, bold: true)  // Increased
             statusLabel.position = CGPoint(x: cx, y: cy + 60)
             group.addChild(statusLabel)
 
             // Commit button
-            let commitBtn = ButtonNode(text: "💾 Commit", width: 200, height: 44, color: C.green, fontSize: 14)
+            let commitBtn = ButtonNode(text: "💾 Commit", width: 200, height: 44, color: C.green, fontSize: 17)  // Increased
             commitBtn.position = CGPoint(x: cx, y: cy + 10)
             commitBtn.action = { [weak self] in self?.handleCommit() }
             group.addChild(commitBtn)
 
-            let hint = makeLabel("💡 커밋하면 영구 기록됩니다", size: 10, color: C.textDim)
+            let hint = makeLabel("💡 커밋하면 영구 기록됩니다", size: 13, color: C.textDim)  // Increased
             hint.position = CGPoint(x: cx, y: cy - 20)
             group.addChild(hint)
 
@@ -1603,14 +1603,14 @@ class GameScene: SKScene {
         group.addChild(emoji)
         
         // Name
-        let name = makeLabel(mission.rewardName, size: 14, color: C.textDim, bold: true)
+        let name = makeLabel(mission.rewardName, size: 17, color: C.textDim, bold: true)  // Increased
         name.position = CGPoint(x: cx, y: cy + 10)
         group.addChild(name)
-        
+
         // Stars
         for i in 0..<mission.stars {
             let star = SKLabelNode(text: "★")
-            star.fontSize = 22
+            star.fontSize = 26  // Increased
             star.fontColor = C.yellow
             star.verticalAlignmentMode = .center
             star.position = CGPoint(x: cx + CGFloat(i - mission.stars/2) * 26, y: cy - 20)
@@ -1622,22 +1622,22 @@ class GameScene: SKScene {
             ]))
             group.addChild(star)
         }
-        
+
         // Complete text
-        let complete = makeLabel("미션 완료! 🎉", size: 18, color: C.green, bold: true)
+        let complete = makeLabel("미션 완료! 🎉", size: 21, color: C.green, bold: true)  // Increased
         complete.position = CGPoint(x: cx, y: cy - 55)
         group.addChild(complete)
-        
+
         // Lesson
         let lessonBg = SKShapeNode(rectOf: CGSize(width: leftWidth - 60, height: 50), cornerRadius: 8)
         lessonBg.fillColor = C.blue.withAlphaComponent(0.08)
         lessonBg.strokeColor = C.blue.withAlphaComponent(0.2)
         lessonBg.position = CGPoint(x: cx, y: cy - 100)
         group.addChild(lessonBg)
-        
+
         let lesson = SKLabelNode(text: mission.gitLesson)
         lesson.fontName = "Helvetica"
-        lesson.fontSize = 11
+        lesson.fontSize = 14  // Increased
         lesson.fontColor = NSColor(white: 0.7, alpha: 1)
         lesson.preferredMaxLayoutWidth = leftWidth - 90
         lesson.numberOfLines = 0
@@ -1921,12 +1921,12 @@ class GameScene: SKScene {
         popup.addChild(panel)
 
         // Title
-        let title = makeLabel("📄 \(fileName) - 파일 내용", size: 13, color: C.blue, bold: true, mono: true)
+        let title = makeLabel("📄 \(fileName) - 파일 내용", size: 16, color: C.blue, bold: true, mono: true)  // Increased
         title.position = CGPoint(x: size.width / 2, y: size.height / 2 + panelHeight / 2 - 25)
         popup.addChild(title)
 
         // Subtitle with part count
-        let subtitle = makeLabel("📦 현재 \(currentParts.count)개 부품 포함", size: 10, color: C.textDim, mono: true)
+        let subtitle = makeLabel("📦 현재 \(currentParts.count)개 부품 포함", size: 13, color: C.textDim, mono: true)  // Increased
         subtitle.position = CGPoint(x: size.width / 2, y: size.height / 2 + panelHeight / 2 - 45)
         popup.addChild(subtitle)
 
@@ -1936,7 +1936,7 @@ class GameScene: SKScene {
 
         // Show file content (all lines)
         if currentContent.isEmpty || currentParts.isEmpty {
-            let emptyMsg = makeLabel("아직 부품이 설치되지 않았습니다", size: 11, color: C.textDim)
+            let emptyMsg = makeLabel("아직 부품이 설치되지 않았습니다", size: 14, color: C.textDim)  // Increased
             emptyMsg.position = CGPoint(x: size.width / 2, y: size.height / 2)
             popup.addChild(emptyMsg)
         } else {
@@ -1944,7 +1944,7 @@ class GameScene: SKScene {
             let diffLines = generateDiffLines(previousContent: file.previousContent, currentContent: currentContent)
 
             for diffLine in diffLines.prefix(18) {  // Show first 18 lines
-                let lineLabel = makeLabel(diffLine.text, size: 9, color: diffLine.color, mono: true)
+                let lineLabel = makeLabel(diffLine.text, size: 11, color: diffLine.color, mono: true)  // Increased
                 lineLabel.horizontalAlignmentMode = .left
                 lineLabel.position = CGPoint(x: size.width / 2 - panelWidth / 2 + 20, y: yOffset)
                 popup.addChild(lineLabel)
@@ -1953,14 +1953,14 @@ class GameScene: SKScene {
 
             // Add scroll hint if there are more lines
             if diffLines.count > 18 {
-                let moreHint = makeLabel("... 외 \(diffLines.count - 18)줄", size: 8, color: C.textFaint, mono: true)
+                let moreHint = makeLabel("... 외 \(diffLines.count - 18)줄", size: 11, color: C.textFaint, mono: true)  // Increased
                 moreHint.position = CGPoint(x: size.width / 2, y: yOffset - 10)
                 popup.addChild(moreHint)
             }
         }
 
         // Close button
-        let closeBtn = ButtonNode(text: "✕ 닫기", width: 100, height: 36, color: NSColor(white: 0.3, alpha: 1), fontSize: 12)
+        let closeBtn = ButtonNode(text: "✕ 닫기", width: 100, height: 36, color: NSColor(white: 0.3, alpha: 1), fontSize: 15)  // Increased
         closeBtn.position = CGPoint(x: size.width / 2, y: size.height / 2 - panelHeight / 2 + 30)
         closeBtn.action = { [weak self] in
             popup.removeFromParent()
