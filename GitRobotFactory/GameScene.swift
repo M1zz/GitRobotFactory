@@ -545,8 +545,9 @@ class GameScene: SKScene {
         let graphTitle = makeLabel("🌳 GIT GRAPH", size: 12, color: C.purple, bold: true, mono: true)
         graphTitle.position = CGPoint(x: graphPanelCenterX, y: size.height - topBarH - 25)
         addChild(graphTitle)
-        
-        gitGraph.position = CGPoint(x: gitPanelWidth + robotPanelWidth + 30, y: terminalH + 30)
+
+        // Position git graph with more top padding (start from top, grow downward)
+        gitGraph.position = CGPoint(x: gitPanelWidth + robotPanelWidth + 30, y: size.height - topBarH - 70)
         addChild(gitGraph)
     }
     

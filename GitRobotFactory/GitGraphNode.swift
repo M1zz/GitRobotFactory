@@ -2,9 +2,9 @@ import SpriteKit
 
 class GitGraphNode: SKNode {
     private var entries: [(branch: String, label: String, type: String)] = []
-    private let maxVisible = 12
-    private let entryHeight: CGFloat = 28
-    private let laneWidth: CGFloat = 20
+    private let maxVisible = 10
+    private let entryHeight: CGFloat = 45  // Increased for better spacing
+    private let laneWidth: CGFloat = 22
 
     // Track active branches and their lanes
     private var branchLanes: [String: Int] = ["main": 0]
@@ -92,11 +92,23 @@ class GitGraphNode: SKNode {
             let badgeLabel = SKLabelNode(text: entry.branch)
             badgeLabel.fontName = "Menlo"
             badgeLabel.fontSize = 8
-            badgeLabel.fontColor = .white
+            badgeLabel.fontColor = C.branchColor(entry.branch)
             badgeLabel.horizontalAlignmentMode = .left
             badgeLabel.verticalAlignmentMode = .center
-            badgeLabel.position = CGPoint(x: 12, y: 0)
+            badgeLabel.position = CGPoint(x: 14, y: 6)
             row.addChild(badgeLabel)
+
+            // Commit message (below branch name)
+            let messageLabel = SKLabelNode(text: entry.label)
+            messageLabel.fontName = "Menlo"
+            messageLabel.fontSize = 7
+            messageLabel.fontColor = NSColor(white: 0.6, alpha: 1)
+            messageLabel.horizontalAlignmentMode = .left
+            messageLabel.verticalAlignmentMode = .center
+            messageLabel.preferredMaxLayoutWidth = 250
+            messageLabel.numberOfLines = 1
+            messageLabel.position = CGPoint(x: 14, y: -6)
+            row.addChild(messageLabel)
 
             // Type indicator
             if entry.type == "merge" {
