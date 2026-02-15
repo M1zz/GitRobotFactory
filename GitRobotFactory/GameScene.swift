@@ -1820,6 +1820,11 @@ class GameScene: SKScene {
         // 3. Normal click handling (buttons, etc. - but NOT part cards)
         let allNodes = nodes(at: loc)
         for node in allNodes {
+            // Check diff overlay (close popup)
+            if node.name == "diffOverlay" {
+                node.parent?.removeFromParent()
+                return
+            }
             // Check checklist toggle button
             if node.name == "checklistToggle" || node.parent?.name == "checklistToggle" {
                 toggleChecklist()
@@ -1887,16 +1892,21 @@ class GameScene: SKScene {
     private func showFileDiff(fileName: String) {
         guard let file = files.first(where: { $0.name == fileName }) else { return }
 
+        // Get current state from robot (real-time)
+        let currentParts = robotNode.getInstalledParts(for: file.partSlot)
+        let currentContent = generateFileContent(for: file.partSlot, parts: currentParts)
+
         // Create diff popup
         let popup = SKNode()
         popup.name = "diffPopup"
         popup.zPosition = 200
 
-        // Semi-transparent overlay
+        // Semi-transparent overlay (clickable to close)
         let overlay = SKShapeNode(rectOf: size)
         overlay.fillColor = NSColor(white: 0, alpha: 0.7)
         overlay.strokeColor = .clear
         overlay.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        overlay.name = "diffOverlay"
         popup.addChild(overlay)
 
         // Diff panel
@@ -1910,30 +1920,42 @@ class GameScene: SKScene {
         popup.addChild(panel)
 
         // Title
-        let title = makeLabel("📄 \(fileName) - 변경사항", size: 13, color: C.blue, bold: true, mono: true)
+        let title = makeLabel("📄 \(fileName) - 파일 내용", size: 13, color: C.blue, bold: true, mono: true)
         title.position = CGPoint(x: size.width / 2, y: size.height / 2 + panelHeight / 2 - 25)
         popup.addChild(title)
 
-        // Diff content
-        let contentStartY = size.height / 2 + panelHeight / 2 - 60
+        // Subtitle with part count
+        let subtitle = makeLabel("📦 현재 \(currentParts.count)개 부품 포함", size: 10, color: C.textDim, mono: true)
+        subtitle.position = CGPoint(x: size.width / 2, y: size.height / 2 + panelHeight / 2 - 45)
+        popup.addChild(subtitle)
+
+        // File content (show current state)
+        let contentStartY = size.height / 2 + panelHeight / 2 - 70
         var yOffset = contentStartY
 
-        // Generate diff lines
-        let diffLines = generateDiffLines(previousContent: file.previousContent, currentContent: file.content)
+        // Show file content (all lines)
+        if currentContent.isEmpty || currentParts.isEmpty {
+            let emptyMsg = makeLabel("아직 부품이 설치되지 않았습니다", size: 11, color: C.textDim)
+            emptyMsg.position = CGPoint(x: size.width / 2, y: size.height / 2)
+            popup.addChild(emptyMsg)
+        } else {
+            // Generate diff to show what changed
+            let diffLines = generateDiffLines(previousContent: file.previousContent, currentContent: currentContent)
 
-        for diffLine in diffLines.prefix(15) {  // Show first 15 lines
-            let lineLabel = makeLabel(diffLine.text, size: 10, color: diffLine.color, mono: true)
-            lineLabel.horizontalAlignmentMode = .left
-            lineLabel.position = CGPoint(x: size.width / 2 - panelWidth / 2 + 20, y: yOffset)
-            popup.addChild(lineLabel)
-            yOffset -= 16
-        }
+            for diffLine in diffLines.prefix(18) {  // Show first 18 lines
+                let lineLabel = makeLabel(diffLine.text, size: 9, color: diffLine.color, mono: true)
+                lineLabel.horizontalAlignmentMode = .left
+                lineLabel.position = CGPoint(x: size.width / 2 - panelWidth / 2 + 20, y: yOffset)
+                popup.addChild(lineLabel)
+                yOffset -= 14
+            }
 
-        // If no changes
-        if diffLines.isEmpty {
-            let noChanges = makeLabel("변경사항 없음", size: 11, color: C.textDim)
-            noChanges.position = CGPoint(x: size.width / 2, y: size.height / 2)
-            popup.addChild(noChanges)
+            // Add scroll hint if there are more lines
+            if diffLines.count > 18 {
+                let moreHint = makeLabel("... 외 \(diffLines.count - 18)줄", size: 8, color: C.textFaint, mono: true)
+                moreHint.position = CGPoint(x: size.width / 2, y: yOffset - 10)
+                popup.addChild(moreHint)
+            }
         }
 
         // Close button
@@ -1955,23 +1977,34 @@ class GameScene: SKScene {
     private func generateDiffLines(previousContent: [String], currentContent: [String]) -> [DiffLine] {
         var lines: [DiffLine] = []
 
-        // Simple diff: show removed lines (red) and added lines (green)
+        // If no previous content, show all as new (green)
+        if previousContent.isEmpty {
+            for line in currentContent {
+                let color = line.hasPrefix("//") || line.isEmpty ? C.textDim : NSColor.green.withAlphaComponent(0.8)
+                let prefix = line.hasPrefix("//") || line.isEmpty ? "  " : "+ "
+                lines.append(DiffLine(text: "\(prefix)\(line)", color: color))
+            }
+            return lines
+        }
+
+        // Better diff: show line-by-line comparison
         let prevSet = Set(previousContent)
         let currSet = Set(currentContent)
 
-        // Removed lines
+        // First, show removed lines
         for line in previousContent {
-            if !currSet.contains(line) {
-                lines.append(DiffLine(text: "- \(line)", color: NSColor.red.withAlphaComponent(0.8)))
+            if !currSet.contains(line) && !line.isEmpty {
+                lines.append(DiffLine(text: "- \(line)", color: NSColor.red.withAlphaComponent(0.7)))
             }
         }
 
-        // Added lines
+        // Then show current content with proper coloring
         for line in currentContent {
-            if !prevSet.contains(line) {
+            if !prevSet.contains(line) && !line.isEmpty && !line.hasPrefix("//") {
+                // New line (green)
                 lines.append(DiffLine(text: "+ \(line)", color: NSColor.green.withAlphaComponent(0.8)))
             } else {
-                // Unchanged lines (show for context)
+                // Unchanged line (show for context)
                 lines.append(DiffLine(text: "  \(line)", color: C.textDim))
             }
         }
