@@ -10,18 +10,18 @@ class TerminalNode: SKNode {
     init(width: CGFloat) {
         self.termWidth = width
         super.init()
-        
-        // Background
-        let bg = SKShapeNode(rectOf: CGSize(width: width, height: 130), cornerRadius: 10)
+
+        // Background - reduced height to prevent overlap
+        let bg = SKShapeNode(rectOf: CGSize(width: width, height: 110), cornerRadius: 10)
         bg.fillColor = NSColor(red: 0.04, green: 0.05, blue: 0.06, alpha: 1)
         bg.strokeColor = C.border
         bg.lineWidth = 1
         bg.position = .zero
         addChild(bg)
-        
+
         // Traffic lights
         let lights = SKNode()
-        lights.position = CGPoint(x: -width/2 + 24, y: 50)
+        lights.position = CGPoint(x: -width/2 + 24, y: 42)  // Adjusted for smaller height
         for (i, color) in [C.red, C.yellow, C.green].enumerated() {
             let dot = SKShapeNode(circleOfRadius: 4)
             dot.fillColor = color
@@ -30,10 +30,10 @@ class TerminalNode: SKNode {
             lights.addChild(dot)
         }
         addChild(lights)
-        
+
         // Title
         let title = makeLabel("TERMINAL", size: 10, color: C.textDim, bold: true, mono: true)
-        title.position = CGPoint(x: -width/2 + 80, y: 50)
+        title.position = CGPoint(x: -width/2 + 80, y: 42)  // Adjusted for smaller height
         title.horizontalAlignmentMode = .left
         addChild(title)
     }
@@ -60,9 +60,9 @@ class TerminalNode: SKNode {
         // Remove old lines
         for node in lineNodes { node.removeFromParent() }
         lineNodes = []
-        
+
         let visible = Array(lines.suffix(maxLines))
-        let startY: CGFloat = 30
+        let startY: CGFloat = 25  // Adjusted for smaller terminal height
         
         for (i, line) in visible.enumerated() {
             let y = startY - CGFloat(i) * lineHeight

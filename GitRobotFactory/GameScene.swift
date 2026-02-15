@@ -79,7 +79,7 @@ class GameScene: SKScene {
     private let robotPanelWidth: CGFloat = 420  // 가운데: 로봇 조립
     private let graphPanelWidth: CGFloat = 400  // 오른쪽: Git Graph
     private let topBarH: CGFloat = 70           // 상단바 높이
-    private let terminalH: CGFloat = 100        // 터미널 높이
+    private let terminalH: CGFloat = 85         // 터미널 높이 (reduced to prevent overlap)
     private let padding: CGFloat = 28           // 기본 여백 (넉넉하게)
     private let elementSpacing: CGFloat = 18    // 요소 간 간격
 

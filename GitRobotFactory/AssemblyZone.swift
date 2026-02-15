@@ -61,7 +61,7 @@ class AssemblyZone: SKNode {
         addChild(hint)
         currentNodes.append(hint)
 
-        let spacing: CGFloat = 130  // Fit within center panel (420 width)
+        let spacing: CGFloat = 105  // Reduced spacing for smaller cards
         let startX = -CGFloat(parts.count - 1) * spacing / 2
 
         for (i, part) in parts.enumerated() {

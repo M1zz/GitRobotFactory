@@ -135,9 +135,9 @@ class PartCardNode: SKNode {
     let bg: SKShapeNode
     var onSelect: ((RobotPart) -> Void)?
 
-    init(part: RobotPart, cardSize: CGSize = CGSize(width: 140, height: 155)) {  // Reduced slightly to fit in center panel
+    init(part: RobotPart, cardSize: CGSize = CGSize(width: 110, height: 125)) {  // Reduced for compactness
         self.part = part
-        bg = SKShapeNode(rectOf: cardSize, cornerRadius: 12)
+        bg = SKShapeNode(rectOf: cardSize, cornerRadius: 10)
         bg.fillColor = NSColor(white: 0.08, alpha: 1)
         bg.strokeColor = C.border
         bg.lineWidth = 1.5
@@ -148,21 +148,21 @@ class PartCardNode: SKNode {
 
         addChild(bg)
 
-        let emoji = makeEmoji(part.emoji, size: 50)  // Increased
-        emoji.position = CGPoint(x: 0, y: 22)
+        let emoji = makeEmoji(part.emoji, size: 40)  // Reduced
+        emoji.position = CGPoint(x: 0, y: 18)
         addChild(emoji)
 
-        let nameLabel = makeLabel(part.name, size: 16, color: C.text, bold: true)  // Increased
-        nameLabel.position = CGPoint(x: 0, y: -15)
+        let nameLabel = makeLabel(part.name, size: 14, color: C.text, bold: true)  // Reduced
+        nameLabel.position = CGPoint(x: 0, y: -12)
         addChild(nameLabel)
 
-        let slotLabel = makeLabel(part.slot.label, size: 13, color: C.textDim)  // Increased
-        slotLabel.position = CGPoint(x: 0, y: -35)
+        let slotLabel = makeLabel(part.slot.label, size: 11, color: C.textDim)  // Reduced
+        slotLabel.position = CGPoint(x: 0, y: -30)
         addChild(slotLabel)
 
         if let port = part.portId {
-            let portLabel = makeLabel("포트: \(port)", size: 11, color: C.orange, bold: true, mono: true)
-            portLabel.position = CGPoint(x: 0, y: -50)
+            let portLabel = makeLabel("포트: \(port)", size: 9, color: C.orange, bold: true, mono: true)  // Reduced
+            portLabel.position = CGPoint(x: 0, y: -46)
             addChild(portLabel)
         }
     }
