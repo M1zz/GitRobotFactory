@@ -9,7 +9,10 @@ class AssemblyZone: SKNode {
     var onShipped: (() -> Void)?
     var onCleanup: ((String) -> Void)?
     var onEmergencyFix: ((RobotPart) -> Void)?
-    
+
+    /// 현재 페이즈에서 정답 부품 (nil이면 검증 없음)
+    var correctPart: RobotPart?
+
     private var currentNodes: [SKNode] = []
     
     override init() {
@@ -58,7 +61,7 @@ class AssemblyZone: SKNode {
         currentNodes.append(title)
 
         // Tight card spacing
-        let spacing: CGFloat = 102  // Just enough for card width (95) + 7px gap
+        let spacing: CGFloat = 102
         let startX = -CGFloat(parts.count - 1) * spacing / 2
 
         for (i, part) in parts.enumerated() {
@@ -66,6 +69,22 @@ class AssemblyZone: SKNode {
             card.position = CGPoint(x: startX + CGFloat(i) * spacing, y: -5)
             card.onSelect = { [weak self] p in
                 self?.onPartSelected?(p)
+            }
+
+            // Correct part highlight
+            if let correct = correctPart, part.id == correct.id {
+                addCorrectCardHighlight(to: card)
+            } else if correctPart != nil {
+                // Wrong part - dim it slightly
+                card.alpha = 0.0
+                card.setScale(0.9)
+                card.run(.group([
+                    .fadeAlpha(to: 0.55, duration: 0.15),
+                    .scale(to: 1.0, duration: 0.15)
+                ]))
+                addChild(card)
+                currentNodes.append(card)
+                continue
             }
 
             // Animate in
@@ -81,6 +100,28 @@ class AssemblyZone: SKNode {
         }
     }
     
+    // 정답 카드에 초록 맥동 테두리 추가
+    private func addCorrectCardHighlight(to card: PartCardNode) {
+        let ring = SKShapeNode(rectOf: CGSize(width: 101, height: 111), cornerRadius: 11)
+        ring.fillColor = C.green.withAlphaComponent(0.10)
+        ring.strokeColor = C.green
+        ring.lineWidth = 2
+        ring.glowWidth = 6
+        ring.zPosition = -1
+        ring.name = "correctRing"
+        let pulse = SKAction.repeatForever(.sequence([
+            .group([.fadeAlpha(to: 0.45, duration: 0.55), .scale(to: 1.05, duration: 0.55)]),
+            .group([.fadeAlpha(to: 1.0, duration: 0.55), .scale(to: 1.0, duration: 0.55)])
+        ]))
+        ring.run(pulse)
+        card.addChild(ring)
+
+        let badge = makeLabel("✓ 장착 필요", size: 8, color: C.green, bold: true, mono: true)
+        badge.position = CGPoint(x: 0, y: -58)
+        badge.name = "correctBadge"
+        card.addChild(badge)
+    }
+
     // MARK: - Workstation Opener (Compact)
     private func showWorkstationOpener(_ name: String) {
         let title = makeLabel("새 워크스테이션", size: 13, color: C.textDim, bold: true)
@@ -204,7 +245,7 @@ class AssemblyZone: SKNode {
         addChild(emoji)
         currentNodes.append(emoji)
 
-        let btn = ButtonNode(text: "🧹 \(name) 정리", width: 180, height: 36, color: NSColor(white: 0.25, alpha: 1), fontSize: 12)
+        let btn = ButtonNode(text: "🧹 \(name) 정리", width: 180, height: 36, color: C.buttonClear, fontSize: 12)
         btn.position = CGPoint(x: 0, y: -20)
         btn.action = { [weak self] in self?.onCleanup?(name) }
         addChild(btn)

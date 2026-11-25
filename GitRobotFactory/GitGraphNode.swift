@@ -130,7 +130,7 @@ class GitGraphNode: SKNode {
             let metaLabel = SKLabelNode(text: metaText)
             metaLabel.fontName = "Menlo"
             metaLabel.fontSize = 7
-            metaLabel.fontColor = NSColor(white: 0.4, alpha: 1)
+            metaLabel.fontColor = C.gitGraphMeta
             metaLabel.horizontalAlignmentMode = .left
             metaLabel.verticalAlignmentMode = .center
             metaLabel.position = CGPoint(x: 10, y: -3)
@@ -142,7 +142,7 @@ class GitGraphNode: SKNode {
             let messageLabel = SKLabelNode(text: displayLabel)
             messageLabel.fontName = "Menlo"
             messageLabel.fontSize = 8
-            messageLabel.fontColor = NSColor(white: 0.55, alpha: 1)
+            messageLabel.fontColor = C.gitGraphMsg
             messageLabel.horizontalAlignmentMode = .left
             messageLabel.verticalAlignmentMode = .center
             messageLabel.position = CGPoint(x: 10, y: -12)

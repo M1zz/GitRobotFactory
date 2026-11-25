@@ -36,22 +36,22 @@ class RobotNode: SKNode {
         // Compact slot sizes
         let size = slot == .torso ? CGSize(width: 56, height: 56) : CGSize(width: 48, height: 48)
         let bg = SKShapeNode(rectOf: size, cornerRadius: 7)
-        bg.fillColor = NSColor(white: 0.05, alpha: 1)
+        bg.fillColor = C.robotSlotBg
         bg.strokeColor = C.border
         bg.lineWidth = 1
         bg.name = "slotBg"
-        
+
         // Dashed border for empty
         let dash = SKShapeNode(rectOf: size, cornerRadius: 7)
         dash.fillColor = .clear
-        dash.strokeColor = NSColor(white: 0.18, alpha: 1)
+        dash.strokeColor = C.robotSlotDash
         dash.lineWidth = 1
         dash.name = "dash"
-        
+
         let label = SKLabelNode(text: slot.label)
         label.fontSize = 9
         label.fontName = "Helvetica"
-        label.fontColor = NSColor(white: 0.22, alpha: 1)
+        label.fontColor = C.robotSlotLabel
         label.verticalAlignmentMode = .center
         label.name = "label"
         
@@ -138,7 +138,7 @@ class RobotNode: SKNode {
         installedParts = [:]
         for (slot, node) in slots {
             if let bg = node.childNode(withName: "slotBg") as? SKShapeNode {
-                bg.fillColor = NSColor(white: 0.05, alpha: 1)
+                bg.fillColor = C.robotSlotBg
                 bg.strokeColor = C.border
             }
             if let dash = node.childNode(withName: "dash") as? SKShapeNode {
@@ -147,7 +147,7 @@ class RobotNode: SKNode {
             if let label = node.childNode(withName: "label") as? SKLabelNode {
                 label.text = slot.label
                 label.fontSize = 9
-                label.fontColor = NSColor(white: 0.22, alpha: 1)
+                label.fontColor = C.robotSlotLabel
             }
         }
     }

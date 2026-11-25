@@ -15,13 +15,13 @@ class ChapterScene: SKScene {
     // MARK: - Top Bar
     private func setupTopBar() {
         let bar = SKShapeNode(rectOf: CGSize(width: size.width, height: 44))
-        bar.fillColor = NSColor(white: 0.05, alpha: 1)
+        bar.fillColor = C.topBarBg
         bar.strokeColor = .clear
         bar.position = CGPoint(x: size.width/2, y: size.height - 22)
         bar.zPosition = 10
         addChild(bar)
         
-        let back = ButtonNode(text: "◀ 뒤로", width: 80, height: 28, color: NSColor(white: 0.12, alpha: 1), fontSize: 11)
+        let back = ButtonNode(text: "◀ 뒤로", width: 80, height: 28, color: C.buttonSecondary, fontSize: 11)
         back.position = CGPoint(x: 55, y: size.height - 22)
         back.zPosition = 11
         back.action = { [weak self] in self?.goToTitle() }
@@ -61,91 +61,109 @@ class ChapterScene: SKScene {
     private func setupMissions() {
         let data = GameData.shared
         let missions = GameData.missions
-        
+
         var currentChapter = 0
-        var y: CGFloat = size.height - 70
-        
+        var y: CGFloat = size.height - 72
+
         for mission in missions {
             // Chapter header
             if mission.chapter != currentChapter {
                 currentChapter = mission.chapter
-                let chTitle = makeLeftLabel(mission.chapterTitle.uppercased(), size: 10, color: C.textDim, bold: true, mono: true)
-                chTitle.position = CGPoint(x: 30, y: y)
+                y -= 4
+
+                let chHeader = SKShapeNode(rectOf: CGSize(width: size.width - 40, height: 22), cornerRadius: 4)
+                chHeader.fillColor = C.textFaint.withAlphaComponent(0.12)
+                chHeader.strokeColor = .clear
+                chHeader.position = CGPoint(x: size.width/2, y: y - 11)
+                contentNode.addChild(chHeader)
+
+                let chTitle = makeLeftLabel(mission.chapterTitle.uppercased(), size: 9, color: C.textDim, bold: true, mono: true)
+                chTitle.position = CGPoint(x: 30, y: y - 11)
                 contentNode.addChild(chTitle)
                 y -= 28
             }
-            
+
             let done = data.completedMissions.contains(mission.id)
             let locked = data.isMissionLocked(mission.id)
-            
-            // Mission row (compact)
+
+            // Mission row card
+            let rowW = size.width - 40
             let row = SKNode()
             row.position = CGPoint(x: size.width / 2, y: y)
-            
-            let rowBg = SKShapeNode(rectOf: CGSize(width: size.width - 40, height: 48), cornerRadius: 10)
-            rowBg.fillColor = done ? NSColor(red: 0.04, green: 0.12, blue: 0.06, alpha: 1) : NSColor(white: 0.07, alpha: 1)
-            rowBg.strokeColor = done ? C.green.withAlphaComponent(0.35) : C.border
+
+            let rowBg = SKShapeNode(rectOf: CGSize(width: rowW, height: 50), cornerRadius: 10)
+            rowBg.fillColor = done ? C.successBg : C.panelBg
+            rowBg.strokeColor = done ? C.green.withAlphaComponent(0.45) : C.border
             rowBg.lineWidth = 1
             row.addChild(rowBg)
-            
-            // Icon
+
+            // Left accent bar for done missions
+            if done {
+                let accent = SKShapeNode(rectOf: CGSize(width: 3, height: 36), cornerRadius: 2)
+                accent.fillColor = C.green
+                accent.strokeColor = .clear
+                accent.position = CGPoint(x: -rowW/2 + 7, y: 0)
+                row.addChild(accent)
+            }
+
+            // Status icon
             let icon = SKLabelNode(text: locked ? "🔒" : done ? "✅" : mission.rewardEmoji)
-            icon.fontSize = 22
+            icon.fontSize = 20
             icon.verticalAlignmentMode = .center
-            icon.position = CGPoint(x: -(size.width/2 - 55), y: 0)
+            icon.position = CGPoint(x: -(rowW/2 - 34), y: 0)
             row.addChild(icon)
-            
-            // Title
+
+            // Title + subtitle
             let titleText = "M\(mission.id): \(mission.title)"
             let mTitle = makeLeftLabel(titleText, size: 12, color: locked ? C.textFaint : C.text, bold: true)
-            mTitle.position = CGPoint(x: -(size.width/2 - 85), y: 6)
+            mTitle.position = CGPoint(x: -(rowW/2 - 64), y: 8)
             row.addChild(mTitle)
-            
+
             let sub = makeLeftLabel(mission.subtitle, size: 10, color: C.textDim)
-            sub.position = CGPoint(x: -(size.width/2 - 85), y: -10)
+            sub.position = CGPoint(x: -(rowW/2 - 64), y: -9)
             row.addChild(sub)
-            
-            // Stars
-            let starX: CGFloat = (size.width/2 - 70)
+
+            // Stars (right side)
+            let starX: CGFloat = rowW/2 - 72
             for s in 0..<mission.stars {
                 let star = SKLabelNode(text: "★")
-                star.fontSize = 12
-                star.fontColor = done ? C.yellow : NSColor(white: 0.18, alpha: 1)
+                star.fontSize = 11
+                star.fontColor = done ? C.yellow : C.starDim
                 star.verticalAlignmentMode = .center
-                star.position = CGPoint(x: starX + CGFloat(s) * 14, y: 0)
+                star.position = CGPoint(x: starX + CGFloat(s) * 13, y: 0)
                 row.addChild(star)
             }
-            
-            row.alpha = locked ? 0.35 : 1.0
+
+            row.alpha = locked ? 0.38 : 1.0
             contentNode.addChild(row)
-            
+
             if !locked {
                 missionButtons.append((row, mission.id))
             }
-            
+
             y -= 58
         }
-        
-        // Robot collection
+
+        // Robot collection section
         if !data.collectedRobots.isEmpty {
-            y -= 12
-            let colTitle = makeLeftLabel("🤖 도감 (\(data.collectedRobots.count)/\(missions.count))", size: 11, color: C.textDim, bold: true)
+            y -= 16
+            let colTitle = makeLeftLabel("🤖  도감  (\(data.collectedRobots.count)/\(GameData.missions.count))", size: 11, color: C.textDim, bold: true)
             colTitle.position = CGPoint(x: 30, y: y)
             contentNode.addChild(colTitle)
-            y -= 30
-            
+            y -= 32
+
             let cols = 8
             for (i, robot) in data.collectedRobots.enumerated() {
                 let col = i % cols
                 let rowIdx = i / cols
                 let rx = 65 + CGFloat(col) * 110
-                let ry = y - CGFloat(rowIdx) * 50
-                
+                let ry = y - CGFloat(rowIdx) * 52
+
                 let emoji = SKLabelNode(text: robot.emoji)
-                emoji.fontSize = 26
+                emoji.fontSize = 24
                 emoji.position = CGPoint(x: rx, y: ry)
                 contentNode.addChild(emoji)
-                
+
                 let name = makeLabel(robot.name, size: 7, color: C.textDim)
                 name.position = CGPoint(x: rx, y: ry - 18)
                 contentNode.addChild(name)

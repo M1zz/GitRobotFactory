@@ -2,8 +2,8 @@ import SpriteKit
 
 class TerminalNode: SKNode {
     private var lines: [String] = []
-    private let maxLines = 4  // Reduced for compact layout
-    private let lineHeight: CGFloat = 15
+    private let maxLines = 5
+    private let lineHeight: CGFloat = 16
     private var lineNodes: [SKLabelNode] = []
     let termWidth: CGFloat
     
@@ -11,17 +11,17 @@ class TerminalNode: SKNode {
         self.termWidth = width
         super.init()
 
-        // Background - compact height
-        let bg = SKShapeNode(rectOf: CGSize(width: width, height: 75), cornerRadius: 8)
-        bg.fillColor = NSColor(red: 0.03, green: 0.04, blue: 0.05, alpha: 1)
+        // Background
+        let bg = SKShapeNode(rectOf: CGSize(width: width, height: 100), cornerRadius: 8)
+        bg.fillColor = C.terminalBg
         bg.strokeColor = C.border
         bg.lineWidth = 1
         bg.position = .zero
         addChild(bg)
 
-        // Traffic lights (smaller)
+        // Traffic lights
         let lights = SKNode()
-        lights.position = CGPoint(x: -width/2 + 18, y: 25)
+        lights.position = CGPoint(x: -width/2 + 18, y: 38)
         for (i, color) in [C.red, C.yellow, C.green].enumerated() {
             let dot = SKShapeNode(circleOfRadius: 3)
             dot.fillColor = color
@@ -33,7 +33,7 @@ class TerminalNode: SKNode {
 
         // Title
         let title = makeLabel("TERMINAL", size: 9, color: C.textDim, bold: true, mono: true)
-        title.position = CGPoint(x: -width/2 + 58, y: 25)
+        title.position = CGPoint(x: -width/2 + 58, y: 38)
         title.horizontalAlignmentMode = .left
         addChild(title)
     }
@@ -61,7 +61,7 @@ class TerminalNode: SKNode {
         lineNodes = []
 
         let visible = Array(lines.suffix(maxLines))
-        let startY: CGFloat = 12
+        let startY: CGFloat = 22
         
         for (i, line) in visible.enumerated() {
             let y = startY - CGFloat(i) * lineHeight
@@ -73,16 +73,16 @@ class TerminalNode: SKNode {
             node.position = CGPoint(x: -termWidth/2 + 12, y: y)
             
             if line.hasPrefix("#") {
-                node.fontColor = NSColor(white: 0.3, alpha: 1)
+                node.fontColor = C.terminalComment
             } else if line.hasPrefix("$") {
                 node.fontColor = C.green
                 let parts = line.dropFirst(2)
                 node.text = "$ "
-                
+
                 let cmdLabel = SKLabelNode(text: String(parts))
                 cmdLabel.fontName = "Menlo"
                 cmdLabel.fontSize = 10
-                cmdLabel.fontColor = NSColor(white: 0.85, alpha: 1)
+                cmdLabel.fontColor = C.terminalCmdText
                 cmdLabel.horizontalAlignmentMode = .left
                 cmdLabel.verticalAlignmentMode = .center
                 cmdLabel.position = CGPoint(x: 14, y: 0)

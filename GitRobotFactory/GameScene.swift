@@ -85,7 +85,7 @@ class GameScene: SKScene {
     
     // Fixed heights
     private let topBarH: CGFloat = 56
-    private let terminalH: CGFloat = 75
+    private let terminalH: CGFloat = 100
     private let padding: CGFloat = 16
     private let sectionGap: CGFloat = 8
     
@@ -168,85 +168,103 @@ class GameScene: SKScene {
     // ═══════════════════════════════════════════════════════════════════════════
     
     private func setupTopBar() {
-        // Dark bar
+        let barY = size.height - topBarH/2
+
+        // Background
         let bar = SKShapeNode(rectOf: CGSize(width: size.width, height: topBarH))
-        bar.fillColor = NSColor(white: 0.05, alpha: 1)
+        bar.fillColor = C.topBarBg
         bar.strokeColor = .clear
-        bar.position = CGPoint(x: size.width/2, y: size.height - topBarH/2)
+        bar.position = CGPoint(x: size.width/2, y: barY)
         bar.zPosition = 10
         addChild(bar)
-        
-        // Left: Back button
-        let back = ButtonNode(text: "◀ 목록", width: 70, height: 28, color: NSColor(white: 0.12, alpha: 1), fontSize: 11)
-        back.position = CGPoint(x: 50, y: size.height - topBarH/2)
+
+        // Bottom separator line
+        let divider = SKShapeNode(rectOf: CGSize(width: size.width, height: 1))
+        divider.fillColor = C.border
+        divider.strokeColor = .clear
+        divider.position = CGPoint(x: size.width/2, y: size.height - topBarH)
+        divider.zPosition = 10
+        addChild(divider)
+
+        // Back button
+        let back = ButtonNode(text: "◀ 목록", width: 68, height: 28, color: C.buttonSecondary, fontSize: 11)
+        back.position = CGPoint(x: 44, y: barY)
         back.zPosition = 11
         back.action = { [weak self] in self?.goToChapters() }
         addChild(back)
-        
-        // Mission title (compact)
-        let title = makeLabel("M\(mission.id): \(mission.title)", size: 14, color: C.text, bold: true)
-        title.position = CGPoint(x: 150, y: size.height - topBarH/2)
+
+        // Vertical separator
+        let sep = SKShapeNode(rectOf: CGSize(width: 1, height: 24))
+        sep.fillColor = C.border
+        sep.strokeColor = .clear
+        sep.position = CGPoint(x: 84, y: barY)
+        sep.zPosition = 11
+        addChild(sep)
+
+        // Mission title (left-aligned, starts at x=94)
+        let title = makeLabel("M\(mission.id)  \(mission.title)", size: 13, color: C.text, bold: true)
+        title.position = CGPoint(x: 94, y: barY)
         title.horizontalAlignmentMode = .left
         title.zPosition = 11
         addChild(title)
 
-        // Phase counter
-        phaseCounter = makeLabel("1/\(mission.phases.count)", size: 12, color: C.textDim, mono: true)
-        phaseCounter.position = CGPoint(x: 320, y: size.height - topBarH/2)
+        // Phase counter — fixed safe position
+        phaseCounter = makeLabel("  1 / \(mission.phases.count)", size: 11, color: C.textDim, mono: true)
+        phaseCounter.position = CGPoint(x: 340, y: barY)
+        phaseCounter.horizontalAlignmentMode = .left
         phaseCounter.zPosition = 11
         addChild(phaseCounter)
 
-        // Branch badge (right side)
+        // Right side: git tools → branch → stars
+        setupGitToolbar()
+
+        // Branch badge (positioned after toolbar, before stars)
         branchBadge = makeBadge(currentBranch, color: C.branchColor(currentBranch), fontSize: 10)
-        branchBadge.position = CGPoint(x: size.width - 180, y: size.height - topBarH/2)
+        branchBadge.position = CGPoint(x: size.width - 110, y: barY)
         branchBadge.zPosition = 11
         addChild(branchBadge)
 
-        // Stars
+        // Stars (far right)
         let stars = makeLabel("⭐\(GameData.shared.totalStars)", size: 12, color: C.yellow)
-        stars.position = CGPoint(x: size.width - 50, y: size.height - topBarH/2)
+        stars.position = CGPoint(x: size.width - 28, y: barY)
         stars.zPosition = 11
         addChild(stars)
-        
-        // Git toolbar (inline, compact)
-        setupGitToolbar()
     }
 
     private func setupGitToolbar() {
         let toolbarY = size.height - topBarH/2
-        let buttonW: CGFloat = 42
+        let buttonW: CGFloat = 32
         let buttonH: CGFloat = 24
-        let spacing: CGFloat = 3
-        let startX = size.width - 450
+        let spacing: CGFloat = 5
+        // 3 buttons × (32+5) = 111px; placed so last button ends well before branch badge
+        let startX = size.width - 305
 
-        let buttons: [(text: String, icon: String, action: Selector, enabled: Bool)] = [
-            ("", "↶", #selector(handleUndo), false),
-            ("", "↷", #selector(handleRedo), false),
-            ("", "↓", #selector(handlePull), true),
-            ("", "↑", #selector(handlePush), true),
-            ("", "⎇", #selector(handleBranchUI), true),
+        let buttons: [(icon: String, action: Selector)] = [
+            ("↓", #selector(handlePull)),
+            ("↑", #selector(handlePush)),
+            ("⎇", #selector(handleBranchUI)),
         ]
 
         for (index, button) in buttons.enumerated() {
             let x = startX + CGFloat(index) * (buttonW + spacing)
 
             let btn = SKShapeNode(rectOf: CGSize(width: buttonW, height: buttonH), cornerRadius: 5)
-            btn.fillColor = button.enabled ? NSColor(white: 0.12, alpha: 1) : NSColor(white: 0.08, alpha: 0.5)
-            btn.strokeColor = button.enabled ? C.border : NSColor(white: 0.06, alpha: 1)
+            btn.fillColor = C.buttonSecondary
+            btn.strokeColor = C.border
             btn.lineWidth = 1
             btn.position = CGPoint(x: x, y: toolbarY)
             btn.name = "gitBtn_\(index)"
             btn.zPosition = 12
             addChild(btn)
 
-            let icon = makeLabel(button.icon, size: 14, color: button.enabled ? C.textDim : NSColor(white: 0.2, alpha: 1))
+            let icon = makeLabel(button.icon, size: 13, color: C.textDim)
             icon.position = CGPoint(x: x, y: toolbarY)
             icon.zPosition = 13
             addChild(icon)
 
             btn.userData = NSMutableDictionary()
             btn.userData?["action"] = button.action
-            btn.userData?["enabled"] = button.enabled
+            btn.userData?["enabled"] = true
         }
     }
 
@@ -314,11 +332,11 @@ class GameScene: SKScene {
         let notification = SKNode()
         notification.zPosition = 100
 
-        let bg = SKShapeNode(rectOf: CGSize(width: 400, height: 40), cornerRadius: 8)
-        bg.fillColor = NSColor(red: 0.1, green: 0.15, blue: 0.2, alpha: 0.95)
+        let bg = SKShapeNode(rectOf: CGSize(width: 420, height: 40), cornerRadius: 8)
+        bg.fillColor = C.notificationBg
         bg.strokeColor = C.blue
         bg.lineWidth = 1
-        bg.position = CGPoint(x: size.width / 2, y: size.height - topBarH - 30)
+        bg.position = CGPoint(x: size.width / 2, y: size.height - topBarH - 58)
         notification.addChild(bg)
 
         let label = makeLabel(message, size: 13, color: C.text, bold: true)
@@ -345,7 +363,7 @@ class GameScene: SKScene {
         group.addChild(overlay)
 
         let dialog = SKShapeNode(rectOf: CGSize(width: 320, height: 200), cornerRadius: 12)
-        dialog.fillColor = NSColor(red: 0.08, green: 0.1, blue: 0.14, alpha: 1)
+        dialog.fillColor = C.dialogBg
         dialog.strokeColor = C.blue
         dialog.lineWidth = 2
         dialog.position = CGPoint(x: size.width / 2, y: size.height / 2)
@@ -368,7 +386,7 @@ class GameScene: SKScene {
             group.addChild(btn)
         }
 
-        let cancelBtn = ButtonNode(text: "취소", width: 80, height: 28, color: NSColor(white: 0.3, alpha: 1), fontSize: 12)
+        let cancelBtn = ButtonNode(text: "취소", width: 80, height: 28, color: C.buttonCancel, fontSize: 12)
         cancelBtn.position = CGPoint(x: size.width / 2, y: size.height / 2 - 75)
         cancelBtn.action = { group.removeFromParent() }
         group.addChild(cancelBtn)
@@ -386,7 +404,7 @@ class GameScene: SKScene {
 
         branchBadge.removeFromParent()
         branchBadge = makeBadge(branchName, color: C.branchColor(branchName), fontSize: 10)
-        branchBadge.position = CGPoint(x: size.width - 180, y: size.height - topBarH/2)
+        branchBadge.position = CGPoint(x: size.width - 110, y: size.height - topBarH/2)
         branchBadge.zPosition = 11
         addChild(branchBadge)
     }
@@ -394,7 +412,7 @@ class GameScene: SKScene {
     private func setupProgressBar() {
         let y = size.height - topBarH - 2
         progressBar = SKShapeNode(rectOf: CGSize(width: size.width, height: 2))
-        progressBar.fillColor = NSColor(white: 0.1, alpha: 1)
+        progressBar.fillColor = C.progressBg
         progressBar.strokeColor = .clear
         progressBar.position = CGPoint(x: size.width/2, y: y)
         progressBar.zPosition = 10
@@ -429,48 +447,69 @@ class GameScene: SKScene {
         let panelBottom = terminalH + 6
         let panelHeight = panelTop - panelBottom
         let midY = (panelTop + panelBottom) / 2
-        
-        // ═══ LEFT PANEL: Git Status ═══
-        let gitPanel = SKShapeNode(rectOf: CGSize(width: gitPanelWidth - 8, height: panelHeight), cornerRadius: 10)
-        gitPanel.fillColor = NSColor(white: 0.03, alpha: 0.6)
-        gitPanel.strokeColor = C.border
-        gitPanel.lineWidth = 1
-        gitPanel.position = CGPoint(x: gitPanelCenterX, y: midY)
-        addChild(gitPanel)
-        
-        let gitTitle = makeLabel("📂 GIT", size: 11, color: C.blue, bold: true, mono: true)
-        gitTitle.position = CGPoint(x: gitPanelCenterX, y: panelTop - 12)
+
+        // ── LEFT PANEL: Git Status ──
+        let gitBg = SKShapeNode(rectOf: CGSize(width: gitPanelWidth - 8, height: panelHeight), cornerRadius: 10)
+        gitBg.fillColor = C.panelBg
+        gitBg.strokeColor = C.border
+        gitBg.lineWidth = 1
+        gitBg.position = CGPoint(x: gitPanelCenterX, y: midY)
+        addChild(gitBg)
+
+        // Left panel top accent strip
+        let gitAccent = SKShapeNode(rectOf: CGSize(width: gitPanelWidth - 8, height: 28), cornerRadius: 5)
+        gitAccent.fillColor = C.blue.withAlphaComponent(0.08)
+        gitAccent.strokeColor = .clear
+        gitAccent.position = CGPoint(x: gitPanelCenterX, y: panelTop - 14)
+        addChild(gitAccent)
+
+        let gitTitle = makeLabel("📂  GIT STATUS", size: 10, color: C.blue, bold: true, mono: true)
+        gitTitle.position = CGPoint(x: gitPanelCenterX, y: panelTop - 14)
         addChild(gitTitle)
-        
-        // Divider 1
-        let div1 = SKShapeNode(rectOf: CGSize(width: 1, height: panelHeight - 20))
+
+        // Vertical divider 1
+        let div1 = SKShapeNode(rectOf: CGSize(width: 1, height: panelHeight - 12))
         div1.fillColor = C.border
         div1.strokeColor = .clear
-        div1.position = CGPoint(x: gitPanelWidth, y: midY)
+        div1.position = CGPoint(x: gitPanelWidth + 0.5, y: midY)
         addChild(div1)
-        
-        // ═══ CENTER PANEL: Robot Assembly ═══
-        let robotPanel = SKShapeNode(rectOf: CGSize(width: robotPanelWidth - 8, height: panelHeight), cornerRadius: 10)
-        robotPanel.fillColor = NSColor(white: 0.03, alpha: 0.6)
-        robotPanel.strokeColor = C.border
-        robotPanel.lineWidth = 1
-        robotPanel.position = CGPoint(x: robotPanelCenterX, y: midY)
-        addChild(robotPanel)
-        
-        let robotTitle = makeLabel("🤖 조립", size: 11, color: C.green, bold: true, mono: true)
-        robotTitle.position = CGPoint(x: robotPanelCenterX, y: panelTop - 12)
+
+        // ── CENTER PANEL: Robot Assembly ──
+        let robotBg = SKShapeNode(rectOf: CGSize(width: robotPanelWidth - 8, height: panelHeight), cornerRadius: 10)
+        robotBg.fillColor = C.panelBg
+        robotBg.strokeColor = C.border
+        robotBg.lineWidth = 1
+        robotBg.position = CGPoint(x: robotPanelCenterX, y: midY)
+        addChild(robotBg)
+
+        let robotAccent = SKShapeNode(rectOf: CGSize(width: robotPanelWidth - 8, height: 28), cornerRadius: 5)
+        robotAccent.fillColor = C.green.withAlphaComponent(0.07)
+        robotAccent.strokeColor = .clear
+        robotAccent.position = CGPoint(x: robotPanelCenterX, y: panelTop - 14)
+        addChild(robotAccent)
+
+        let robotTitle = makeLabel("🤖  ROBOT ASSEMBLY", size: 10, color: C.green, bold: true, mono: true)
+        robotTitle.position = CGPoint(x: robotPanelCenterX, y: panelTop - 14)
         addChild(robotTitle)
-        
-        // Robot node - positioned in upper half
-        let robotY = midY + panelHeight * 0.15
+
+        // Center divider (horizontal) between robot and assembly zone
+        let robotDivY = midY + panelHeight * 0.07
+        let centerDiv = SKShapeNode(rectOf: CGSize(width: robotPanelWidth - 32, height: 1))
+        centerDiv.fillColor = C.border
+        centerDiv.strokeColor = .clear
+        centerDiv.position = CGPoint(x: robotPanelCenterX, y: robotDivY)
+        addChild(centerDiv)
+
+        // Robot node - upper area
+        let robotY = midY + panelHeight * 0.28
         robotNode.position = CGPoint(x: robotPanelCenterX, y: robotY)
         addChild(robotNode)
 
-        // Assembly zone - positioned in lower half
-        let assemblyY = midY - panelHeight * 0.25
+        // Assembly zone - lower area
+        let assemblyY = midY - panelHeight * 0.23
         assemblyZone.position = CGPoint(x: robotPanelCenterX, y: assemblyY)
         addChild(assemblyZone)
-        
+
         // Wire up callbacks
         assemblyZone.onPartSelected = { [weak self] part in self?.handlePartSelected(part) }
         assemblyZone.onWorkstationOpened = { [weak self] name in self?.handleWorkstationOpened(name) }
@@ -480,27 +519,33 @@ class GameScene: SKScene {
         assemblyZone.onShipped = { [weak self] in self?.handleShipped() }
         assemblyZone.onCleanup = { [weak self] name in self?.handleCleanup(name) }
         assemblyZone.onEmergencyFix = { [weak self] part in self?.handleEmergencyFix(part) }
-        
-        // Divider 2
-        let div2 = SKShapeNode(rectOf: CGSize(width: 1, height: panelHeight - 20))
+
+        // Vertical divider 2
+        let div2 = SKShapeNode(rectOf: CGSize(width: 1, height: panelHeight - 12))
         div2.fillColor = C.border
         div2.strokeColor = .clear
-        div2.position = CGPoint(x: gitPanelWidth + robotPanelWidth, y: midY)
+        div2.position = CGPoint(x: gitPanelWidth + robotPanelWidth + 0.5, y: midY)
         addChild(div2)
-        
-        // ═══ RIGHT PANEL: Git Graph ═══
-        let graphPanel = SKShapeNode(rectOf: CGSize(width: graphPanelWidth - 8, height: panelHeight), cornerRadius: 10)
-        graphPanel.fillColor = NSColor(white: 0.03, alpha: 0.6)
-        graphPanel.strokeColor = C.border
-        graphPanel.lineWidth = 1
-        graphPanel.position = CGPoint(x: graphPanelCenterX, y: midY)
-        addChild(graphPanel)
-        
-        let graphTitle = makeLabel("🌳 GRAPH", size: 11, color: C.purple, bold: true, mono: true)
-        graphTitle.position = CGPoint(x: graphPanelCenterX, y: panelTop - 12)
+
+        // ── RIGHT PANEL: Git Graph ──
+        let graphBg = SKShapeNode(rectOf: CGSize(width: graphPanelWidth - 8, height: panelHeight), cornerRadius: 10)
+        graphBg.fillColor = C.panelBg
+        graphBg.strokeColor = C.border
+        graphBg.lineWidth = 1
+        graphBg.position = CGPoint(x: graphPanelCenterX, y: midY)
+        addChild(graphBg)
+
+        let graphAccent = SKShapeNode(rectOf: CGSize(width: graphPanelWidth - 8, height: 28), cornerRadius: 5)
+        graphAccent.fillColor = C.purple.withAlphaComponent(0.07)
+        graphAccent.strokeColor = .clear
+        graphAccent.position = CGPoint(x: graphPanelCenterX, y: panelTop - 14)
+        addChild(graphAccent)
+
+        let graphTitle = makeLabel("🌿  GIT GRAPH", size: 10, color: C.purple, bold: true, mono: true)
+        graphTitle.position = CGPoint(x: graphPanelCenterX, y: panelTop - 14)
         addChild(graphTitle)
 
-        gitGraph.position = CGPoint(x: gitPanelWidth + robotPanelWidth + 20, y: panelTop - 35)
+        gitGraph.position = CGPoint(x: gitPanelWidth + robotPanelWidth + 16, y: panelTop - 44)
         addChild(gitGraph)
     }
     
@@ -523,7 +568,7 @@ class GameScene: SKScene {
             currentTutorialStep = .dragPart
         }
 
-        phaseCounter.text = "\(phaseIndex + 1)/\(mission.phases.count)"
+        phaseCounter.text = "  \(phaseIndex + 1) / \(mission.phases.count)"
         updateProgress()
         updateBranchBadge(phase.branchContext)
         
@@ -531,6 +576,7 @@ class GameScene: SKScene {
         
         actionDone = false
         currentGitState = .waiting
+        assemblyZone.correctPart = currentExpectedPart
         assemblyZone.showAction(phase.assemblyAction)
 
         explanationGroup?.removeFromParent()
@@ -579,7 +625,7 @@ class GameScene: SKScene {
         branchBadge.removeFromParent()
         let branchName = context.components(separatedBy: " ").last ?? currentBranch
         branchBadge = makeBadge(branchName, color: C.branchColor(branchName), fontSize: 10)
-        branchBadge.position = CGPoint(x: size.width - 180, y: size.height - topBarH/2)
+        branchBadge.position = CGPoint(x: size.width - 110, y: size.height - topBarH/2)
         branchBadge.zPosition = 11
         addChild(branchBadge)
     }
@@ -625,7 +671,7 @@ class GameScene: SKScene {
         group.addChild(overlay)
         
         let bg = SKShapeNode(rectOf: CGSize(width: modalW, height: modalH), cornerRadius: 12)
-        bg.fillColor = NSColor(red: 0.1, green: 0.1, blue: 0.05, alpha: 0.98)
+        bg.fillColor = C.explanationBg
         bg.strokeColor = C.yellow.withAlphaComponent(0.4)
         bg.lineWidth = 1
         bg.position = CGPoint(x: cx, y: cy)
@@ -638,7 +684,7 @@ class GameScene: SKScene {
         let exp = SKLabelNode(text: phase.explanation)
         exp.fontName = "Helvetica"
         exp.fontSize = 13
-        exp.fontColor = NSColor(white: 0.8, alpha: 1)
+        exp.fontColor = C.text
         exp.verticalAlignmentMode = .center
         exp.horizontalAlignmentMode = .center
         exp.preferredMaxLayoutWidth = modalW - 40
@@ -648,7 +694,7 @@ class GameScene: SKScene {
 
         // Git command
         let cmdBg = SKShapeNode(rectOf: CGSize(width: modalW - 40, height: 24), cornerRadius: 5)
-        cmdBg.fillColor = NSColor(white: 0.03, alpha: 1)
+        cmdBg.fillColor = C.terminalBg
         cmdBg.strokeColor = .clear
         cmdBg.position = CGPoint(x: cx, y: cy - 20)
         group.addChild(cmdBg)
@@ -770,7 +816,7 @@ class GameScene: SKScene {
         let bannerY = size.height - topBarH - 25
         
         let bg = SKShapeNode(rectOf: CGSize(width: 340, height: bannerH), cornerRadius: 8)
-        bg.fillColor = NSColor(red: 0.15, green: 0.2, blue: 0.3, alpha: 0.95)
+        bg.fillColor = C.branchDialogBg
         bg.strokeColor = C.yellow
         bg.lineWidth = 1
         bg.position = CGPoint(x: size.width / 2, y: bannerY)
@@ -847,116 +893,112 @@ class GameScene: SKScene {
 
         let panelW = gitPanelWidth
         let cx = gitPanelCenterX
+        let innerW = panelW - padding * 2
         let leftX: CGFloat = padding + 4
         let rightX: CGFloat = panelW - padding - 4
-        
-        // Available height for content
-        let topY = size.height - topBarH - 28
-        var y = topY
-        
-        // ═══ GOAL SECTION (Compact) ═══
+
+        // Content starts below the panel title accent strip (28px) + gap
+        var y = size.height - topBarH - 44
+
+        // ── GOAL CARD ──
         if phaseIndex < mission.phases.count {
             let phase = mission.phases[phaseIndex]
             let goalText = getGoalText(for: phase)
-            
-            let goalBg = SKShapeNode(rectOf: CGSize(width: panelW - padding * 2, height: 32), cornerRadius: 6)
-            goalBg.fillColor = C.yellow.withAlphaComponent(0.08)
-            goalBg.strokeColor = C.yellow.withAlphaComponent(0.25)
-            goalBg.lineWidth = 1
-            goalBg.position = CGPoint(x: cx, y: y - 16)
-            group.addChild(goalBg)
 
-            let goalLabel = makeLabel("🎯 \(goalText)", size: 11, color: C.yellow, bold: true)
-            goalLabel.position = CGPoint(x: cx, y: y - 16)
+            let goalCard = SKShapeNode(rectOf: CGSize(width: innerW, height: 36), cornerRadius: 7)
+            goalCard.fillColor = C.yellow.withAlphaComponent(0.10)
+            goalCard.strokeColor = C.yellow.withAlphaComponent(0.40)
+            goalCard.lineWidth = 1
+            goalCard.position = CGPoint(x: cx, y: y - 18)
+            group.addChild(goalCard)
+
+            // Left accent bar on goal card
+            let accentBar = SKShapeNode(rectOf: CGSize(width: 3, height: 28), cornerRadius: 2)
+            accentBar.fillColor = C.yellow
+            accentBar.strokeColor = .clear
+            accentBar.position = CGPoint(x: cx - innerW/2 + 6, y: y - 18)
+            group.addChild(accentBar)
+
+            let goalLabel = makeLabel("🎯  \(goalText)", size: 11, color: C.yellow, bold: true)
+            goalLabel.position = CGPoint(x: cx + 4, y: y - 18)
             group.addChild(goalLabel)
-            
-            y -= 42
+
+            y -= 46
         }
-        
-        // ═══ WORKING DIRECTORY (Collapsible) ═══
+
+        // ── WORKING DIRECTORY SECTION ──
         let modifiedFiles = files.filter { $0.status == .modified || $0.status == .untracked }
         y = addCollapsibleSection(
-            to: group,
-            title: "Working Dir",
-            icon: "📂",
-            color: C.orange,
-            isExpanded: isWorkingDirExpanded,
-            toggleName: "toggleWorkingDir",
-            files: modifiedFiles,
-            isStaged: false,
-            emptyText: "✓ clean",
-            y: y,
-            panelW: panelW
+            to: group, title: "Working Dir", icon: "📂", color: C.orange,
+            isExpanded: isWorkingDirExpanded, toggleName: "toggleWorkingDir",
+            files: modifiedFiles, isStaged: false, emptyText: "✓ clean",
+            y: y, panelW: panelW
         )
-        
+
         y -= sectionGap
-        
-        // ═══ STAGING AREA (Collapsible) ═══
+
+        // ── STAGING AREA SECTION ──
         let stagedFiles = files.filter { $0.status == .staged }
         y = addCollapsibleSection(
-            to: group,
-            title: "Staging",
-            icon: "📦",
-            color: C.green,
-            isExpanded: isStagingExpanded,
-            toggleName: "toggleStaging",
-            files: stagedFiles,
-            isStaged: true,
-            emptyText: "→ 없음",
-            y: y,
-            panelW: panelW
+            to: group, title: "Staging", icon: "📦", color: C.green,
+            isExpanded: isStagingExpanded, toggleName: "toggleStaging",
+            files: stagedFiles, isStaged: true, emptyText: "→ 없음",
+            y: y, panelW: panelW
         )
-        
-        y -= sectionGap
-        
-        // ═══ COMMIT SECTION (Always visible, compact) ═══
-        let commitBg = SKShapeNode(rectOf: CGSize(width: panelW - padding * 2, height: sectionHeaderH), cornerRadius: 5)
-        commitBg.fillColor = C.blue.withAlphaComponent(0.1)
-        commitBg.strokeColor = .clear
-        commitBg.position = CGPoint(x: cx, y: y - sectionHeaderH/2)
-        group.addChild(commitBg)
 
-        let commitTitle = makeLabel("💾 Commit", size: 11, color: C.blue, bold: true, mono: true)
-        commitTitle.position = CGPoint(x: cx, y: y - sectionHeaderH/2)
+        y -= sectionGap + 2
+
+        // ── COMMIT SECTION ──
+        let commitCard = SKShapeNode(rectOf: CGSize(width: innerW, height: sectionHeaderH), cornerRadius: 6)
+        commitCard.fillColor = C.blue.withAlphaComponent(0.08)
+        commitCard.strokeColor = C.blue.withAlphaComponent(0.25)
+        commitCard.lineWidth = 1
+        commitCard.position = CGPoint(x: cx, y: y - sectionHeaderH/2)
+        group.addChild(commitCard)
+
+        let commitAccent = SKShapeNode(rectOf: CGSize(width: 3, height: sectionHeaderH - 8), cornerRadius: 2)
+        commitAccent.fillColor = C.blue
+        commitAccent.strokeColor = .clear
+        commitAccent.position = CGPoint(x: cx - innerW/2 + 6, y: y - sectionHeaderH/2)
+        group.addChild(commitAccent)
+
+        let commitTitle = makeLabel("💾  Commit", size: 11, color: C.blue, bold: true, mono: true)
+        commitTitle.position = CGPoint(x: cx + 4, y: y - sectionHeaderH/2)
         group.addChild(commitTitle)
-        
+
         y -= sectionHeaderH + 6
-        
-        // Commit message + button in one row
-        let rowH: CGFloat = inputH
-        let inputW = panelW - padding * 2 - 70  // Leave space for button
-        
-        let msgBg = SKShapeNode(rectOf: CGSize(width: inputW, height: rowH), cornerRadius: 5)
-        msgBg.fillColor = NSColor(white: 0.05, alpha: 1)
+
+        // Commit message input + commit button row
+        let inputW = innerW - 56
+        let msgBg = SKShapeNode(rectOf: CGSize(width: inputW, height: inputH), cornerRadius: 6)
+        msgBg.fillColor = C.commitInputBg
         msgBg.strokeColor = stagedFiles.isEmpty ? C.border : C.blue
-        msgBg.lineWidth = 1
-        msgBg.position = CGPoint(x: leftX + inputW/2, y: y - rowH/2)
+        msgBg.lineWidth = stagedFiles.isEmpty ? 1 : 1.5
+        msgBg.position = CGPoint(x: leftX + inputW/2, y: y - inputH/2)
         msgBg.name = "commitMsgBg"
         group.addChild(msgBg)
 
-        let msgText = commitMessageText.isEmpty ? "메시지..." : commitMessageText
+        let msgText = commitMessageText.isEmpty ? "커밋 메시지..." : commitMessageText
         let msgLabel = makeLabel(msgText, size: 10, color: commitMessageText.isEmpty ? C.textFaint : C.text, mono: true)
         msgLabel.position = msgBg.position
         group.addChild(msgLabel)
-        
-        // Commit button (inline)
+
         let commitBtn = ButtonNode(
             text: "✓",
-            width: 50,
-            height: rowH,
-            color: stagedFiles.isEmpty ? NSColor(white: 0.12, alpha: 0.5) : C.green,
-            fontSize: 14
+            width: 44, height: inputH,
+            color: stagedFiles.isEmpty ? C.buttonSecondary.withAlphaComponent(0.5) : C.green,
+            fontSize: 15
         )
-        commitBtn.position = CGPoint(x: rightX - 25, y: y - rowH/2)
+        commitBtn.position = CGPoint(x: rightX - 22, y: y - inputH/2)
         commitBtn.name = "commitButton"
         if !stagedFiles.isEmpty {
             commitBtn.action = { [weak self] in self?.performCommit() }
         }
         group.addChild(commitBtn)
-        
-        y -= rowH + sectionGap
-        
-        // ═══ TODO CHECKLIST (Collapsible, compact) ═══
+
+        y -= inputH + sectionGap
+
+        // ── TODO CHECKLIST ──
         if !currentTodos.isEmpty {
             y = addChecklistSection(to: group, y: y, panelW: panelW)
         }
@@ -964,7 +1006,6 @@ class GameScene: SKScene {
         addChild(group)
         fileSystemUI = group
 
-        // Tutorial auto-advance
         if isTutorialMode {
             if currentTutorialStep == .waitForModified && !modifiedFiles.isEmpty {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
@@ -994,33 +1035,41 @@ class GameScene: SKScene {
     ) -> CGFloat {
         var currentY = y
         let cx = panelW / 2
+        let innerW = panelW - padding * 2
         let leftX: CGFloat = padding + 4
-        
-        // Section header (clickable)
-        let headerBg = SKShapeNode(rectOf: CGSize(width: panelW - padding * 2, height: sectionHeaderH), cornerRadius: 5)
-        headerBg.fillColor = color.withAlphaComponent(0.1)
-        headerBg.strokeColor = .clear
-        headerBg.position = CGPoint(x: cx, y: currentY - sectionHeaderH/2)
-        headerBg.name = toggleName
-        group.addChild(headerBg)
 
-        let arrow = isExpanded ? "▼" : "▶"
-        let count = files.isEmpty ? "" : " (\(files.count))"
-        let headerLabel = makeLabel("\(arrow) \(icon) \(title)\(count)", size: 11, color: color, bold: true, mono: true)
-        headerLabel.position = CGPoint(x: cx, y: currentY - sectionHeaderH/2)
+        // Section header card
+        let headerCard = SKShapeNode(rectOf: CGSize(width: innerW, height: sectionHeaderH), cornerRadius: 6)
+        headerCard.fillColor = color.withAlphaComponent(0.08)
+        headerCard.strokeColor = color.withAlphaComponent(0.22)
+        headerCard.lineWidth = 1
+        headerCard.position = CGPoint(x: cx, y: currentY - sectionHeaderH/2)
+        headerCard.name = toggleName
+        group.addChild(headerCard)
+
+        // Left accent bar
+        let accentBar = SKShapeNode(rectOf: CGSize(width: 3, height: sectionHeaderH - 8), cornerRadius: 2)
+        accentBar.fillColor = color
+        accentBar.strokeColor = .clear
+        accentBar.position = CGPoint(x: cx - innerW/2 + 6, y: currentY - sectionHeaderH/2)
+        group.addChild(accentBar)
+
+        let arrow = isExpanded ? "▾" : "▸"
+        let count = files.isEmpty ? "" : " \(files.count)"
+        let headerLabel = makeLabel("\(arrow) \(icon)  \(title)\(count)", size: 11, color: color, bold: true, mono: true)
+        headerLabel.position = CGPoint(x: cx + 4, y: currentY - sectionHeaderH/2)
         headerLabel.name = "\(toggleName)_label"
         group.addChild(headerLabel)
-        
+
         currentY -= sectionHeaderH + 4
-        
-        // Content (if expanded)
+
         if isExpanded {
             if files.isEmpty {
                 let emptyLabel = makeLabel(emptyText, size: 10, color: emptyText.contains("✓") ? C.green : C.textFaint)
                 emptyLabel.horizontalAlignmentMode = .left
-                emptyLabel.position = CGPoint(x: leftX + 8, y: currentY - 10)
+                emptyLabel.position = CGPoint(x: leftX + 14, y: currentY - 12)
                 group.addChild(emptyLabel)
-                currentY -= 22
+                currentY -= 24
             } else {
                 for file in files {
                     let fileNode = createCompactFileRow(file: file, x: leftX, y: currentY - fileRowH/2, isStaged: isStaged, panelW: panelW)
@@ -1029,66 +1078,71 @@ class GameScene: SKScene {
                 }
             }
         }
-        
+
         return currentY
     }
     
     private func createCompactFileRow(file: GitFile, x: CGFloat, y: CGFloat, isStaged: Bool, panelW: CGFloat) -> SKNode {
         let row = SKNode()
-        let cx = panelW / 2
-        
-        // Status badge (compact)
-        let statusText: String
-        let statusColor: NSColor
-        switch file.status {
-        case .untracked: statusText = "?"; statusColor = C.purple
-        case .modified: statusText = "M"; statusColor = C.orange
-        case .staged: statusText = "A"; statusColor = C.green
-        case .committed: statusText = ""; statusColor = C.textFaint
-        }
+
+        // Row background (subtle)
+        let rowBg = SKShapeNode(rectOf: CGSize(width: panelW - padding * 2 - 4, height: fileRowH - 2), cornerRadius: 4)
+        rowBg.fillColor = C.bg.withAlphaComponent(0.5)
+        rowBg.strokeColor = .clear
+        rowBg.position = CGPoint(x: x + (panelW - padding * 2 - 4)/2, y: y)
+        row.addChild(rowBg)
+
+        // Status badge
+        let (statusText, statusColor): (String, NSColor) = {
+            switch file.status {
+            case .modified:  return ("M", C.orange)
+            case .staged:    return ("S", C.green)
+            case .untracked: return ("U", C.purple)
+            default:         return ("", C.textFaint)
+            }
+        }()
 
         if !statusText.isEmpty {
-            let badge = SKShapeNode(rectOf: CGSize(width: 18, height: 16), cornerRadius: 3)
-            badge.fillColor = statusColor.withAlphaComponent(0.2)
-            badge.strokeColor = statusColor.withAlphaComponent(0.4)
+            let badge = SKShapeNode(rectOf: CGSize(width: 16, height: 15), cornerRadius: 3)
+            badge.fillColor = statusColor.withAlphaComponent(0.18)
+            badge.strokeColor = statusColor.withAlphaComponent(0.5)
             badge.lineWidth = 1
-            badge.position = CGPoint(x: x + 12, y: y)
+            badge.position = CGPoint(x: x + 10, y: y)
             row.addChild(badge)
 
             let statusLabel = makeLabel(statusText, size: 9, color: statusColor, bold: true, mono: true)
-            statusLabel.position = CGPoint(x: x + 12, y: y)
+            statusLabel.position = badge.position
             row.addChild(statusLabel)
         }
 
-        // File name (truncated)
-        let maxNameLen = 8
+        // File name
+        let maxNameLen = 9
         let displayName = file.name.count > maxNameLen ? String(file.name.prefix(maxNameLen)) + "…" : file.name
         let fileName = makeLabel(displayName, size: 10, color: C.text, mono: true)
         fileName.horizontalAlignmentMode = .left
-        fileName.position = CGPoint(x: x + 28, y: y)
+        fileName.position = CGPoint(x: x + 24, y: y)
         row.addChild(fileName)
 
         // Stage/Unstage button
         let btnText = isStaged ? "↓" : "↑"
         let btnColor = isStaged ? C.orange : C.green
-        
-        let btn = SKShapeNode(rectOf: CGSize(width: 24, height: 20), cornerRadius: 5)
-        btn.fillColor = isStaged ? btnColor.withAlphaComponent(0.2) : btnColor.withAlphaComponent(0.35)
-        btn.strokeColor = btnColor
-        btn.lineWidth = isStaged ? 1 : 1.5
-        btn.position = CGPoint(x: panelW - padding - 16, y: y)
+
+        let btn = SKShapeNode(rectOf: CGSize(width: 22, height: 18), cornerRadius: 4)
+        btn.fillColor = btnColor.withAlphaComponent(0.15)
+        btn.strokeColor = btnColor.withAlphaComponent(0.6)
+        btn.lineWidth = 1
+        btn.position = CGPoint(x: panelW - padding - 14, y: y)
         btn.name = "stageBtn_\(file.name)"
         btn.userData = NSMutableDictionary()
         btn.userData?["fileName"] = file.name
         btn.userData?["isStaged"] = isStaged
-        
-        // Glow effect for stage button (↑)
+
         if !isStaged {
-            btn.glowWidth = 3
+            btn.glowWidth = 2
         }
         row.addChild(btn)
 
-        let btnLabel = makeLabel(btnText, size: 14, color: isStaged ? btnColor : .white, bold: true)
+        let btnLabel = makeLabel(btnText, size: 12, color: btnColor, bold: true)
         btnLabel.position = btn.position
         row.addChild(btnLabel)
 
@@ -1241,7 +1295,7 @@ class GameScene: SKScene {
         let panelW: CGFloat = 340
         let panelH: CGFloat = 280
         let panel = SKShapeNode(rectOf: CGSize(width: panelW, height: panelH), cornerRadius: 12)
-        panel.fillColor = NSColor(red: 0.05, green: 0.08, blue: 0.05, alpha: 0.98)
+        panel.fillColor = C.completionBg
         panel.strokeColor = C.green.withAlphaComponent(0.5)
         panel.lineWidth = 2
         panel.position = CGPoint(x: cx, y: cy)
@@ -1283,7 +1337,7 @@ class GameScene: SKScene {
         let lesson = SKLabelNode(text: mission.gitLesson)
         lesson.fontName = "Helvetica"
         lesson.fontSize = 11
-        lesson.fontColor = NSColor(white: 0.65, alpha: 1)
+        lesson.fontColor = C.textDim
         lesson.preferredMaxLayoutWidth = panelW - 40
         lesson.numberOfLines = 0
         lesson.verticalAlignmentMode = .center
@@ -1304,9 +1358,68 @@ class GameScene: SKScene {
         addChild(group)
     }
     
+    // MARK: - Part Validation
+
+    /// 현재 페이즈에서 기대하는 정답 부품
+    private var currentExpectedPart: RobotPart? {
+        guard phaseIndex < mission.phases.count else { return nil }
+        switch mission.phases[phaseIndex].assemblyAction {
+        case .pickPart(let parts):   return parts.first
+        case .installPart(let part): return part
+        case .emergencyFix(let part): return part
+        default: return nil
+        }
+    }
+
+    private func isCorrectPart(_ part: RobotPart) -> Bool {
+        guard let expected = currentExpectedPart else { return true }
+        return part.id == expected.id
+    }
+
+    private func showWrongPartFeedback(for wrong: RobotPart) {
+        guard let expected = currentExpectedPart else { return }
+        showErrorNotification("❌ '\(wrong.name)'이(가) 아닙니다! '\(expected.name)' 을(를) 장착하세요")
+
+        // Shake the goal highlight to draw attention
+        goalIndicators?.run(.sequence([
+            .moveBy(x: -7, y: 0, duration: 0.05),
+            .moveBy(x: 14, y: 0, duration: 0.08),
+            .moveBy(x: -14, y: 0, duration: 0.08),
+            .moveBy(x: 7, y: 0, duration: 0.05)
+        ]))
+    }
+
+    private func showErrorNotification(_ message: String) {
+        let notification = SKNode()
+        notification.zPosition = 101
+
+        let bg = SKShapeNode(rectOf: CGSize(width: 460, height: 40), cornerRadius: 8)
+        bg.fillColor = C.red.withAlphaComponent(0.92)
+        bg.strokeColor = C.red
+        bg.lineWidth = 1
+        bg.position = CGPoint(x: size.width / 2, y: size.height - topBarH - 58)
+        notification.addChild(bg)
+
+        let label = makeLabel(message, size: 12, color: .white, bold: true)
+        label.position = bg.position
+        notification.addChild(label)
+
+        addChild(notification)
+        notification.run(.sequence([
+            .wait(forDuration: 2.2),
+            .fadeOut(withDuration: 0.3),
+            .removeFromParent()
+        ]))
+    }
+
     // MARK: - Action Handlers
 
     private func handlePartSelected(_ part: RobotPart) {
+        guard isCorrectPart(part) else {
+            showWrongPartFeedback(for: part)
+            return
+        }
+
         robotNode.installPart(part)
 
         if let index = files.firstIndex(where: { $0.partSlot == part.slot }) {
@@ -1591,10 +1704,13 @@ class GameScene: SKScene {
 
         guard let targetSlot = findDropTarget(at: location, for: part) else { return }
 
+        let correct = isCorrectPart(part)
+        let highlightColor = correct ? C.green : C.orange
+
         let size = part.slot == .torso ? CGSize(width: 50, height: 50) : CGSize(width: 44, height: 44)
         let highlight = SKShapeNode(rectOf: size, cornerRadius: 7)
-        highlight.fillColor = C.green.withAlphaComponent(0.15)
-        highlight.strokeColor = C.green.withAlphaComponent(0.7)
+        highlight.fillColor = highlightColor.withAlphaComponent(0.15)
+        highlight.strokeColor = highlightColor.withAlphaComponent(0.7)
         highlight.lineWidth = 2
         highlight.zPosition = -1
 
@@ -1612,8 +1728,14 @@ class GameScene: SKScene {
         guard let ghost = ghostCard, let card = draggedCard else { return }
 
         if let targetSlot = findDropTarget(at: location, for: card.part) {
-            let slotPosition = robotNode.convert(targetSlot.position, to: self)
+            // 정답 부품 검증
+            if !isCorrectPart(card.part) {
+                showWrongPartFeedback(for: card.part)
+                rejectGhost(ghost)
+                return
+            }
 
+            let slotPosition = robotNode.convert(targetSlot.position, to: self)
             let move = SKAction.move(to: slotPosition, duration: 0.15)
             let fadeOut = SKAction.fadeOut(withDuration: 0.15)
             ghost.run(.group([move, fadeOut]))
@@ -1634,24 +1756,25 @@ class GameScene: SKScene {
                 }
             }
         } else {
-            // Failed drop
-            let shake = SKAction.sequence([
-                .moveBy(x: -6, y: 0, duration: 0.04),
-                .moveBy(x: 12, y: 0, duration: 0.08),
-                .moveBy(x: -12, y: 0, duration: 0.08),
-                .moveBy(x: 6, y: 0, duration: 0.04)
-            ])
-
-            let flash = SKShapeNode(rectOf: CGSize(width: 120, height: 100), cornerRadius: 10)
-            flash.fillColor = .clear
-            flash.strokeColor = NSColor.red.withAlphaComponent(0.7)
-            flash.lineWidth = 2
-            flash.zPosition = -1
-            ghost.addChild(flash)
-
-            flash.run(.sequence([.wait(forDuration: 0.25), .fadeOut(withDuration: 0.15), .removeFromParent()]))
-            ghost.run(.sequence([shake, .group([.scale(to: 0.4, duration: 0.15), .fadeOut(withDuration: 0.15)])]))
+            rejectGhost(ghost)
         }
+    }
+
+    private func rejectGhost(_ ghost: SKNode) {
+        let shake = SKAction.sequence([
+            .moveBy(x: -6, y: 0, duration: 0.04),
+            .moveBy(x: 12, y: 0, duration: 0.08),
+            .moveBy(x: -12, y: 0, duration: 0.08),
+            .moveBy(x: 6, y: 0, duration: 0.04)
+        ])
+        let flash = SKShapeNode(rectOf: CGSize(width: 120, height: 100), cornerRadius: 10)
+        flash.fillColor = .clear
+        flash.strokeColor = C.red.withAlphaComponent(0.7)
+        flash.lineWidth = 2
+        flash.zPosition = -1
+        ghost.addChild(flash)
+        flash.run(.sequence([.wait(forDuration: 0.25), .fadeOut(withDuration: 0.15), .removeFromParent()]))
+        ghost.run(.sequence([shake, .group([.scale(to: 0.4, duration: 0.15), .fadeOut(withDuration: 0.15)])]))
     }
 
     private func cleanupDrag() {
